@@ -1,0 +1,36 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+	  {
+		"Action": [
+		  "codedeploy:CreateApplication",
+		  "codedeploy:DeleteApplication",
+		  "codedeploy:RegisterApplicationRevision"
+		],
+		"Resource": [
+		  "arn:aws:codedeploy:us-east-1:mdecorte:application:*"
+		],
+		"Effect": "Allow"
+	  },
+	  {
+		"Action": [
+		  "codedeploy:CreateDeploymentGroup",
+		  "codedeploy:CreateDeployment",
+		  "codedeploy:GetDeployment"
+		],
+		"Resource": [
+		  "arn:aws:codedeploy:us-east-1:mdecorte:deploymentgroup:*"
+		],
+		"Effect": "Allow"
+	  },
+	  {
+		"Action": [
+		  "codedeploy:GetDeploymentConfig"
+		],
+		"Resource": [
+		  "arn:aws:codedeploy:us-east-1:mdecorte:deploymentconfig:*"
+		],
+		"Effect": "Allow"
+	  }
+    ]
+}

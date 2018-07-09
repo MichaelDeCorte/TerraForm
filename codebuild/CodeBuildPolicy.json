@@ -1,0 +1,34 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Resource": "*",
+            "Action": [
+                "codebuild:StartBuild",
+                "codebuild:StopBuild",
+                "codebuild:BatchGet*",
+                "codebuild:Get*",
+                "codebuild:List*",
+                "s3:GetBucketLocation",
+                "s3:ListAllMyBuckets",
+                "s3:GetObject",
+                "s3:PutObject"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Resource": "arn:aws:logs:*:*:log-group:/aws/codebuild/*:log-stream:*",
+            "Action": [
+                "logs:CreateLogStream"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Resource": "arn:aws:ssm:*:*:parameter/CodeBuild/*",
+            "Action": [
+                "ssm:PutParameter"
+            ]
+        }
+    ]
+}
