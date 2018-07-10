@@ -11,7 +11,7 @@
 
 # include "global" variables
 module "variables" {
-    source = "git@github.com:MichaelDeCorte/LambdaExample.git//Terraform/variables"
+    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
 }
 
 variable "stage_name" {
@@ -35,7 +35,7 @@ variable "logging_level" {
 #
 module "apiStageLogGroup" {
     # source = "../../cloudwatch/logGroup"
-    source = "git@github.com:MichaelDeCorte/LambdaExample.git//Terraform/cloudwatch/logGroup"
+    source = "git@github.com:MichaelDeCorte/Terraform.git//cloudwatch/logGroup"
 
     name = "API-Gateway-Execution-Logs_${var.api_id}/${var.stage_name}"
 }    

@@ -3,7 +3,7 @@
 # include "global" variables
 module "variables" {
     # source = "../../../Terraform/variables"
-    source = "git@github.com:MichaelDeCorte/LambdaExample.git//Terraform/variables"
+    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
 }
 
 
@@ -58,7 +58,7 @@ variable "variables" {
 ############################################################
 module "LambdaRole" {
     # source = "../role"
-    source = "git@github.com:MichaelDeCorte/LambdaExample.git//Terraform/lambda/role"
+    source = "git@github.com:MichaelDeCorte/Terraform.git//lambda/role"
 }
 
 resource "aws_s3_bucket_object" "lambdaFile" {
@@ -102,7 +102,7 @@ resource "aws_lambda_function" "aws_lambda" {
 #
 module "lambdaLogGroup" {
     # source = "../../cloudwatch/logGroup"
-    source = "git@github.com:MichaelDeCorte/LambdaExample.git//Terraform/cloudwatch/logGroup"
+    source = "git@github.com:MichaelDeCorte/Terraform.git//cloudwatch/logGroup"
 
     name = "/aws/lambda/${var.function_name}"
 }    

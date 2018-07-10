@@ -5,7 +5,7 @@
     
 # include "global" variables
 module "variables" {
-    source = "git@github.com:MichaelDeCorte/LambdaExample.git//Terraform/variables"
+    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
 }   
 
 ############################################################
@@ -61,7 +61,7 @@ resource "aws_dynamodb_table" "dynamoTable" {
 
 
 ### module "nosqlDB" {
-###     # source = "git@github.com:MichaelDeCorte/LambdaExample.git//Terraform/dynamo"
+###     # source = "git@github.com:MichaelDeCorte/Terraform.git//dynamo"
 ###     source = "../Terraform/dynamo"
 
 ###     name        = "party"

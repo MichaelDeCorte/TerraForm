@@ -11,7 +11,7 @@
 
 # include "global" variables
 module "variables" {
-    source = "git@github.com:MichaelDeCorte/LambdaExample.git//Terraform/variables"
+    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
 }
 
 variable "api_name" {
@@ -25,7 +25,7 @@ resource "aws_api_gateway_rest_api" "gatewayApi" {
 
 module "apiGatewayRole" {
     # source = "../role"
-    source = "git@github.com:MichaelDeCorte/LambdaExample.git//Terraform/apiGateway/role"
+    source = "git@github.com:MichaelDeCorte/Terraform.git//apiGateway/role"
 }
 
 
