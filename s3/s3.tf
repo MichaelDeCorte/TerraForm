@@ -2,7 +2,8 @@
     
 # include "global" variables
 module "variables" {
-    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
+    #source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
+    source = "terraform/variables"
 }   
 
 ############################################################
