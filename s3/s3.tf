@@ -7,7 +7,7 @@
 
 ############################################################
 # input variables
-variable "global" {
+variable "globals" {
     type = "map"
 }
 
