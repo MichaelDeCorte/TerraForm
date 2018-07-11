@@ -24,6 +24,8 @@ ISSUES
 
 - input variables can't be interpolated.   # see default tag for a pattern to support this
 
+- aws_s3 can't copy a directory    
+
 ------------------------------------------------------------
 Pattern for globally accessable variables
 - define variables
