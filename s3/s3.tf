@@ -8,7 +8,7 @@
 ############################################################
 # input variables
 variable "global" {
-    type = map
+    type = "map"
 }
 
 variable "bucket" {
