@@ -1,13 +1,16 @@
 # s3.tf
     
 # include "global" variables
-module "variables" {
-    #source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
-    source = "terraform/variables"
-}   
+# module "variables" {
+#     source = "git@github.com:MichaelDeCorte/LambdaExample.git//Terraform/variables"
+# }   
 
 ############################################################
 # input variables
+variable "global" {
+    type = map
+}
+
 variable "bucket" {
 	 type = "string"
 }
@@ -30,7 +33,7 @@ resource "aws_s3_bucket" "S3Bucket" {
     acl             = "${var.acl}"
     force_destroy   = "${var.force_destroy}"
 
-    tags 					= "${merge(var.tags, module.variables.tags)}"
+    tags 					= "${merge(var.tags, var.globals["tags"])}"
 }
 
 output "id" {
