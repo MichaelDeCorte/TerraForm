@@ -39,6 +39,10 @@ resource "null_resource" "dependency" {
 
 resource "null_resource" "copy_dir" {
 
+    depends_on = [
+        "null_resource.dependency"
+    ]
+
     provisioner "local-exec" {
         command = "aws s3 --profile ${local.awsProfile["profile"]} cp --recursive ${var.from} ${var.to}"
         # command = "echo  sha1 ${sha1(file(local.hashfile))}"
