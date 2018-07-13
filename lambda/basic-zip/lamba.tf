@@ -6,15 +6,6 @@ variable "globals" {
     type = "map"
 }
 
-locals {
-    region  = "${var.globals["region"]}"
-}
-
-variable "region" {
-    # default = "$${module.variables.region}"
-    default = "${local.region[region]}"
-}
-
 variable "description" {
 	default=""
 }
