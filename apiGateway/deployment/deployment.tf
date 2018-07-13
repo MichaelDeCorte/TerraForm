@@ -10,8 +10,8 @@
 #    
 
 # include "global" variables
-module "variables" {
-    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
+variable "globals" {
+    type = "map"
 }
 
 variable "stage_name" {
@@ -38,6 +38,7 @@ module "apiStageLogGroup" {
     source = "git@github.com:MichaelDeCorte/Terraform.git//cloudwatch/logGroup"
 
     name = "API-Gateway-Execution-Logs_${var.api_id}/${var.stage_name}"
+    globals = "${var.globals.globals}"
 }    
 
 

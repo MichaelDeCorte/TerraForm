@@ -1,14 +1,18 @@
 # Instance/main.tf
 
-# include "global" variables
-module "variables" {
-    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
-}
-
 ############################################################
 # input variables
+variable "globals" {
+    type = "map"
+}
+
+locals {
+    region  = "${var.globals["region"]}"
+}
+
 variable "region" {
-	default = "$${module.variables.region}"
+	# default = "$${module.variables.region}"
+    default = "${local.region[region]}"
 }
 
 variable "description" {
@@ -69,7 +73,7 @@ resource "aws_instance" "instance" {
     key_name 					= "${var.ssh_key}"
     security_groups 				= [ "${var.security_groups}" ]
 
-    tags 					= "${merge(var.depends_id,var.tags, module.variables.tags)}"
+    tags 					= "${merge(var.depends_id,var.tags, var.globals["tags"])}"
     associate_public_ip_address 		= true
 
 #    user_data 					= "${data.template_file.user_data.rendered}"

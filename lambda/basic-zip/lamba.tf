@@ -1,15 +1,18 @@
-# Instance/main.tf
-
-# include "global" variables
-module "variables" {
-    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
-}
-
+# 
 
 ############################################################
 # input variables
+variable "globals" {
+    type = "map"
+}
+
+locals {
+    region  = "${var.globals["region"]}"
+}
+
 variable "region" {
-	 default = "$${module.variables.region}"
+    # default = "$${module.variables.region}"
+    default = "${local.region[region]}"
 }
 
 variable "description" {
@@ -79,7 +82,7 @@ resource "aws_lambda_function" "aws_lambda" {
   
     
 
-    tags		        = "${merge(var.tags, module.variables.tags)}"
+    tags		        = "${merge(var.tags, var.globals["tags"])}"
     role              = "${aws_iam_role.LambdaRole.arn}"
     source_code_hash  = "${base64sha256(file("${var.filename}"))}"
     runtime           = "${var.runtime}"

@@ -1,8 +1,10 @@
 # 
 
-# include "global" variables
-module "variables" {
-    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
+############################################################
+# input variables
+
+variable "globals" {
+    type = "map"
 }
 
 variable "tags" {
@@ -10,7 +12,7 @@ variable "tags" {
 	 default = { }
 }
 
-
+############################################################
 
 ##########
 resource "aws_iam_policy" "CloudWatchPolicy" {

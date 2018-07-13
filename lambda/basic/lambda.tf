@@ -1,16 +1,19 @@
-# Instance/main.tf
-
-# include "global" variables
-module "variables" {
-    # source = "../../../Terraform/variables"
-    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
-}
-
+# 
 
 ############################################################
 # input variables
+
+variable "globals" {
+    type = "map"
+}
+
+locals {
+    region  = "${var.globals["region"]}"
+}
+
 variable "region" {
-	 default = "$${module.variables.region}"
+    # default = "$${module.variables.region}"
+    default = "${local.region[region]}"
 }
 
 variable "description" {
@@ -59,6 +62,8 @@ variable "variables" {
 module "LambdaRole" {
     # source = "../role"
     source = "git@github.com:MichaelDeCorte/Terraform.git//lambda/role"
+
+    globals = "${var.globals}"
 }
 
 resource "aws_s3_bucket_object" "lambdaFile" {
@@ -87,9 +92,9 @@ resource "aws_lambda_function" "aws_lambda" {
     publish	            = "${var.publish}"
     handler	            = "${var.handler}"
 
-    tags		        = "${merge(module.variables.tags, var.tags)}"
+    tags		        = "${merge(var.globals["tags"], var.tags)}"
     environment {
-        variables	    = "${merge(module.variables.variables, var.variables)}"
+        variables	    = "${merge(var.globals["envVariables"], var.variables)}"
     }
     role                = "${module.LambdaRole.arn}"
     runtime             = "${var.runtime}"
@@ -105,6 +110,8 @@ module "lambdaLogGroup" {
     source = "git@github.com:MichaelDeCorte/Terraform.git//cloudwatch/logGroup"
 
     name = "/aws/lambda/${var.function_name}"
+
+    globals = "${var.globals}"
 }    
 
 

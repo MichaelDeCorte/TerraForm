@@ -3,13 +3,12 @@
 # https://github.com/hashicorp/terraform/issues/12294
 # https://github.com/terraform-providers/terraform-provider-aws/issues/556    
     
-# include "global" variables
-module "variables" {
-    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
-}   
-
 ############################################################
 # input variables
+variable "globals" {
+    type = "map"
+}
+
 variable "name" {
 	 type = "string"
 }
@@ -48,7 +47,7 @@ resource "aws_dynamodb_table" "dynamoTable" {
           type   = "${lookup(var.attributes[count.index], "type")}"
     }
 
-    tags 					= "${merge(var.tags, module.variables.tags)}"
+    tags 					= "${merge(var.tags, var.globals["tags"])}"
 }
 
 # output "id" {

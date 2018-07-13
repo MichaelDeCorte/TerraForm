@@ -1,62 +1,62 @@
 
-output "keys" {
-    value = {
-        access_key = ""
-        secret_key = ""
-    }
-}
+# output "keys" {
+#     value = {
+#         access_key = ""
+#         secret_key = ""
+#     }
+# }
 
-output "tags" {
-    value  	 =    {
-        AdminContact = "Michael DeCorte"
-        Description = "sprizzi.io website"
-		Owner	 = "Sprizzi"
-		Project	 = "Sprizzi.io"
-		Terraform = "true"
-	}
-}
+# output "tags" {
+#     value  	 =    {
+#         AdminContact = "Michael DeCorte"
+#         Description = "sprizzi.io website"
+# 		Owner	 = "Sprizzi"
+# 		Project	 = "Sprizzi.io"
+# 		Terraform = "true"
+# 	}
+# }
 
-output "variables" {
-    value  	 =    {
-        LOG_LEVEL = "debug"
-	}
-}
+# output "variables" {
+#     value  	 =    {
+#         LOG_LEVEL = "debug"
+# 	}
+# }
 
-output "region" {
-    value    = "us-east-1"
-    description = "AWS region to launch servers."
-}
+# output "region" {
+#     value    = "us-east-1"
+#     description = "AWS region to launch servers."
+# }
 
-output "profile" {
-    value    = "chainNinja"
-    description = "the profile in ~/.aws/credentials to use to access AWS"
-}
+# output "profile" {
+#     value    = "chainNinja"
+#     description = "the profile in ~/.aws/credentials to use to access AWS"
+# }
 
-output "id" {
-    value = "mdecorte"
-}
+# output "id" {
+#     value = "mdecorte"
+# }
 
-output "keypair" {
-    value    = "sprizzi" 
-    description = "Desired name of AWS key pair"
-}
+# output "keypair" {
+#     value    = "sprizzi" 
+#     description = "Desired name of AWS key pair"
+# }
 
-# aws ec2 describe-availability-zones
-output "availability_zone" {
-    value    = "us-east-1d"
-}
+# # aws ec2 describe-availability-zones
+# output "availability_zone" {
+#     value    = "us-east-1d"
+# }
 
-output "env" {
-    value    = "dev"
-    #value    = "prod"
-    #value    = "dev"
-    #value    = "demo"
-    description = "The name for the environment."
-}
+# output "env" {
+#     value    = "dev"
+#     #value    = "prod"
+#     #value    = "dev"
+#     #value    = "demo"
+#     description = "The name for the environment."
+# }
 
-output "retention_in_days" {
-    value = "3"
-}
+# output "retention_in_days" {
+#     value = "3"
+# }
 
 output "globals" {
     value = {

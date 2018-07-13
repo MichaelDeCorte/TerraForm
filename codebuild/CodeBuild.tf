@@ -1,15 +1,19 @@
 # Serverless Application Model configuration
 # https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md
 
-# include "global" variables
-module "variables" {
-    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
-}   
-
 ############################################################
 # input variables
+variable "globals" {
+    type = "map"
+}
+
+locals {
+    region  = "${var.globals["region"]}"
+}
+
 variable "region" {
-	  default = "$${module.variables.region}"
+	# default = "$${module.variables.region}"
+    default = "${local.region[region]}"
 }
 
 variable "name" {
@@ -111,6 +115,6 @@ resource "aws_codebuild_project" "lambda_nodejs" {
         buildspec = "${var.buildspec}"
     }
 
-    tags					= "${merge(var.tags, module.variables.tags)}"
+    tags					= "${merge(var.tags, var.globals["tags"])}"
 
 }

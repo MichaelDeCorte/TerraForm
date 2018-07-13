@@ -10,8 +10,8 @@
 #    
 
 # include "global" variables
-module "variables" {
-    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
+variable "globals" {
+    type = "map"
 }
 
 variable "stage_name" {

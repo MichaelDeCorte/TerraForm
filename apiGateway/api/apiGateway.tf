@@ -9,9 +9,8 @@
 #        
 #    
 
-# include "global" variables
-module "variables" {
-    source = "git@github.com:MichaelDeCorte/Terraform.git//variables"
+variable "globals" {
+    type = "map"
 }
 
 variable "api_name" {
@@ -26,6 +25,8 @@ resource "aws_api_gateway_rest_api" "gatewayApi" {
 module "apiGatewayRole" {
     # source = "../role"
     source = "git@github.com:MichaelDeCorte/Terraform.git//apiGateway/role"
+
+    globals = "${var.globals.globals}"
 }
 
 
