@@ -20,36 +20,26 @@ variable "to" {
 
 locals {
     awsProfile = "${var.globals["awsProfile"]}"
-    hashfile = ".hash.${sha1(format("%s::%s", var.from, var.to))}"
+    hashfile = ".hash.${sha1(format("%s::%s", var.from, var.to))}.zip"
 }
 
+# create a zip file for the sole purpose of creating a dependency to copy the dir to s3 or not
+# https://github.com/terraform-providers/terraform-provider-aws/issues/3020
+data "archive_file" "dotfiles" {
+  type        = "zip"
+  source_dir = "${var.from}"
 
-# create a filelist with timestamps to allow a dependency
-resource "null_resource" "dependency" {
-    provisioner "local-exec" {
-        command = "find ${var.from} -ls | sort > ${local.hashfile};"
-    }
-
-    # run everytime
-    triggers = {
-        uuid = "${uuid()}"
-    }
-
+  output_path = "${local.hashfile}"
 }
 
 resource "null_resource" "copy_dir" {
 
-    depends_on = [
-        "null_resource.dependency"
-    ]
-
     provisioner "local-exec" {
         command = "aws s3 --profile ${local.awsProfile["profile"]} cp --recursive ${var.from} ${var.to}"
-        # command = "echo  sha1 ${sha1(file(local.hashfile))}"
     }
 
     triggers = {
-        hashfile = "${sha1(file(local.hashfile))}"
+        hash = "${data.archive_file.dotfiles.output_sha}"
     }
 
 }
@@ -57,3 +47,4 @@ resource "null_resource" "copy_dir" {
 output "hash" {
     value = "${sha1(file(local.hashfile))}"
 }
+
