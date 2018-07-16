@@ -20,8 +20,7 @@ variable "to" {
 
 locals {
     awsProfile = "${var.globals["awsProfile"]}"
-    hashfile = ".hash.${sha1(format("%s::%s", var.from, var.to))}.zip"
-}
+    hashfile = ".hash.${replace(replace(format("%s.%s", var.from, var.to), "/[~/:]/", "."), "/\\.{2,}/" ,".")}.zip"}
 
 # create a zip file for the sole purpose of creating a dependency to copy the dir to s3 or not
 # https://github.com/terraform-providers/terraform-provider-aws/issues/3020
