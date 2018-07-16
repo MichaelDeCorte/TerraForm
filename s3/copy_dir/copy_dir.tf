@@ -33,6 +33,8 @@ data "archive_file" "dotfiles" {
 
 resource "null_resource" "copy_dir" {
 
+    depends_on = [ "archive_file.dotfiles" ]
+
     provisioner "local-exec" {
         command = "aws s3 --profile ${local.awsProfile["profile"]} cp --recursive ${var.from} ${var.to}"
     }
