@@ -38,7 +38,7 @@ module "apiStageLogGroup" {
     source = "git@github.com:MichaelDeCorte/Terraform.git//cloudwatch/logGroup"
 
     name = "API-Gateway-Execution-Logs_${var.api_id}/${var.stage_name}"
-    globals = "${var.globals.globals}"
+    globals = "${var.globals}"
 }    
 
 
