@@ -26,7 +26,7 @@ module "apiGatewayRole" {
     # source = "../role"
     source = "git@github.com:MichaelDeCorte/Terraform.git//apiGateway/role"
 
-    globals = "${var.globals.globals}"
+    globals = "${var.globals}"
 }
 
 
