@@ -6,6 +6,7 @@
           "Action": [
             "dynamodb:GetItem",
             "dynamodb:BatchGetItem",
+            "dynamodb:Scan",
             "dynamodb:Query",
             "dynamodb:PutItem",
             "dynamodb:UpdateItem",
