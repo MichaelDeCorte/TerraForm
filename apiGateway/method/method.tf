@@ -70,6 +70,12 @@ resource "aws_api_gateway_method_response" "200MethodResponse" {
     response_models = {
         "application/json" = "Empty"
     }
+    # enable CORS
+    response_parameters {
+        "method.response.header.Access-Control-Allow-Headers" = true,
+        "method.response.header.Access-Control-Allow-Methods" = true,
+        "method.response.header.Access-Control-Allow-Origin" = true
+    }
 }
 
 ##############################
@@ -83,6 +89,12 @@ resource "aws_api_gateway_method_response" "500MethodResponse" {
     status_code = "500"
     response_models = {
         "application/json" = "Error"
+    }
+    # enable CORS
+    response_parameters {
+        "method.response.header.Access-Control-Allow-Headers" = true,
+        "method.response.header.Access-Control-Allow-Methods" = true,
+        "method.response.header.Access-Control-Allow-Origin" = true
     }
 }
 
