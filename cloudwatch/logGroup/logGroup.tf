@@ -3,6 +3,11 @@ variable "globals" {
     type = "map"
 }
 
+variable "tags" {
+    type = "map"
+    default = { }
+}
+
 variable "name" {
 	type = "string"
 }
@@ -14,4 +19,9 @@ variable "retention_in_days" {
 resource "aws_cloudwatch_log_group" "apiLogGroup" {
     name              = "${var.name}"
     retention_in_days = "${var.retention_in_days}"
+
+    tags			= "${merge(var.tags, 
+						var.globals["tags"])}", 
+
 }
+
