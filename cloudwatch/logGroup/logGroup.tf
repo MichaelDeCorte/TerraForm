@@ -16,7 +16,7 @@ variable "retention_in_days" {
     default=3
 }    
 
-resource "aws_cloudwatch_log_group" "apiLogGroup" {
+resource "aws_cloudwatch_log_group" "log_group" {
     name              = "${var.name}"
     retention_in_days = "${var.retention_in_days}"
 
@@ -25,3 +25,6 @@ resource "aws_cloudwatch_log_group" "apiLogGroup" {
 
 }
 
+output "arn" {
+       value = "${aws_cloudwatch_log_group.log_group.arn}"
+}
