@@ -52,6 +52,7 @@ EOF
 
     website {
         index_document = "${var.index_document}"
+        error_document = "${var.index_document}"
     }
 }
 
