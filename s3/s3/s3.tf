@@ -40,9 +40,10 @@ resource "aws_s3_bucket" "S3Bucket" {
         enabled = "${var.versioning}"
     }
 
+	# https://github.com/hashicorp/terraform/issues/3116
     lifecycle {
-        prevent_destroy = "${var.prevent_destroy}"
-#        prevent_destroy = true
+	#        prevent_destroy = "${var.prevent_destroy}"
+        prevent_destroy = true
     }
     
     tags 					= "${merge(var.tags, var.globals["tags"])}"
