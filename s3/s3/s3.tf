@@ -40,9 +40,9 @@ resource "aws_s3_bucket" "S3Bucket" {
         enabled = "${var.versioning}"
     }
 
-    lifecycle {
-        prevent_destroy = "${var.prevent_destroy}"
-    }
+    # lifecycle {
+    #     prevent_destroy = "${var.prevent_destroy}"
+    # }
     
     tags 					= "${merge(var.tags, var.globals["tags"])}"
 }
