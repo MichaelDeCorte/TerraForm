@@ -69,6 +69,11 @@ variable "autoscale_max_write_capacity" {
     default = 5
 }
 
+variable "stream_view_type" {
+    # KEYS_ONLY, NEW_IMAGE, OLD_IMAGE, NEW_AND_OLD_IMAGES.
+    default = ""
+}
+
 locals {
     attributes_temp = [
         {
@@ -126,6 +131,9 @@ resource "aws_dynamodb_table" "dynamo_table" {
         "${var.global_secondary_indexes}"
      ]
 
+    stream_enabled		= "${var.stream_view_type == "" ? false : true}"
+    stream_view_type	= "${var.stream_view_type}"
+    
     tags 					= "${merge(var.tags, var.globals["tags"])}"
 
     # server_side_encryption { enabled = "true" }  # MRD
@@ -262,8 +270,14 @@ resource "aws_appautoscaling_policy" "write_policy_index" {
 }
 
 ############################################################
+output "arn" {
+    value = "${aws_dynamodb_table.dynamo_table.arn}"
+}
+
 output "name" {
     value = "${aws_dynamodb_table.dynamo_table.name}"
 }
 
-    
+output "stream_label" {
+    value = "${aws_dynamodb_table.dynamo_table.stream_label}"
+}
