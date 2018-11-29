@@ -1,7 +1,4 @@
 # dynamo.tf
-# doesn't work
-# https://github.com/hashicorp/terraform/issues/12294
-# https://github.com/terraform-providers/terraform-provider-aws/issues/556    
     
 ############################################################
 # input variables
@@ -74,6 +71,22 @@ variable "stream_view_type" {
     default = ""
 }
 
+
+# triggers = [
+#     {
+#         name 					= "lambda_name"		# arn or name of lambda function
+#         batch_size 			= 10 				# defaults to local.triggers.batch_size
+#         starting_position 	= "LATEST"			# defaults to local.triggers.starting_position
+#													# https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_streams_GetShardIterator.html
+#     },
+#     {
+#         name 					= "lambda_arn"		# arn or name of lambda function
+#     }
+# ]
+variable "triggers" {
+    default = []
+}
+
 locals {
     attributes_temp = [
         {
@@ -95,9 +108,20 @@ locals {
     from_index = "${length(var.range_key) > 0 ? 0 : 1}"
 
     attributes = "${slice(local.attributes_temp, local.from_index, length(local.attributes_temp))}"
+
+    triggers = {
+        batch_size = "100"
+        starting_position = "LATEST"
+    }
 }
 
 # MRD / not sure why this doesn't work
+# https://gist.github.com/brikis98/f3fe2ae06f996b40b55eebcb74ed9a9e
+#
+# works for static values (i.e., hard-coded values, variables, local
+# vars), it does not work in the general case for anything with
+# "dynamic" or "computed" data such as a data source or resource.
+#
 # ##############################
 # resource "null_resource" "global_secondary_index" {
 #     count = "${length(var.global_secondary_indexes)}"
@@ -267,6 +291,15 @@ resource "aws_appautoscaling_policy" "write_policy_index" {
 
         target_value = "${var.autoscale_write_target}"
     }
+}
+
+resource "aws_lambda_event_source_mapping" "triggers" {
+    count = "${length(var.triggers)}"
+
+    event_source_arn 	= "${aws_dynamodb_table.dynamo_table.stream_arn}"
+    function_name 		= "${lookup(var.triggers[count.index], "name")}"
+    batch_size 			= "${lookup(var.triggers[count.index], "batch_size", local.triggers["batch_size"])}"
+    starting_position 	= "${lookup(var.triggers[count.index], "starting_position", local.triggers["starting_position"])}"
 }
 
 ############################################################
