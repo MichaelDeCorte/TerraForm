@@ -25,7 +25,7 @@ variable "attributes" {
 }
 
 variable "global_secondary_indexes" {
-    type = "list"
+    # type = "list"
     default = []
 }
 
