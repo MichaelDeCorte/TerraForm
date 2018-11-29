@@ -40,6 +40,10 @@ variable "content_based_deduplication" {
 }
 
 
+variable "visibility_timeout_seconds" {
+    default = 30
+}
+
 # triggers = [
 #     {
 #         name 					= "lambda_name"		# arn or name of lambda function
@@ -73,6 +77,8 @@ resource "aws_sqs_queue" "queue" {
     content_based_deduplication = "${var.content_based_deduplication}"
 
     tags	= "${var.globals["tags"]}"
+    visibility_timeout_seconds = "${var.visibility_timeout_seconds}"
+
 }
 
 resource "aws_lambda_event_source_mapping" "triggers" {
