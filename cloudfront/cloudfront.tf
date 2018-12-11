@@ -4,12 +4,45 @@ variable "globals" {
     type = "map"
 }
 
+variable "tags" {
+    type = "map"
+    default = { }
+}
+
 variable "domain_name" {
-	 type = "string"
+    type = "string"
 }
 
 variable "origin_id" {
-	 type = "string"
+    type = "string"
+}
+
+variable "aliases" {
+    type = "list"
+    default = []
+}
+
+variable "acm_certificate_arn" {
+    type = "string"
+    default = ""
+}
+
+variable "minimum_protocol_version" {
+    type = "string"
+    default = "TLSv1.1_2016"
+}
+
+variable "default_ttl" {
+    type = "string"
+#    default  = "3600" # one hour
+    default = "86400" # one day
+}
+
+variable "price_class" {
+    type = "string"
+    default = "PriceClass_100"		# Use Only U.S., Canada and Europe
+    # default = "PriceClass_200"	# Use U.S., Canada, Europe, Asia and Africa
+    # default = PriceClass_All		# Use All Edge Locations (Best Performance)
 }
 
 variable "default_root_object" {
@@ -17,11 +50,7 @@ variable "default_root_object" {
 }
 
 
-variable "tags" {
-	 type = "map"
-	 default = { }
-}
-
+##############################
 resource "aws_cloudfront_distribution" "cloudfront" {
     origin {
         domain_name = "${var.domain_name}"
@@ -39,70 +68,37 @@ resource "aws_cloudfront_distribution" "cloudfront" {
     #     prefix          = "myprefix"
     # }
 
-    # aliases = ["mysite.example.com", "yoursite.example.com"]
+    aliases =  "${var.aliases}" 
 
     default_cache_behavior {
-        # allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
-        allowed_methods  = ["GET", "HEAD"]
-        cached_methods   = ["GET", "HEAD"]
+        # allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
+        allowed_methods  = ["HEAD", "GET", "OPTIONS"]
+
+        # cached_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
+        cached_methods  = ["HEAD", "GET", "OPTIONS"]
+
         target_origin_id = "${var.origin_id}"
 
         forwarded_values {
             query_string = false
-
             cookies {
                 forward = "none"
             }
         }
 
-        viewer_protocol_policy = "allow-all"
-        # min_ttl                = 0
-        # default_ttl            = 3600
-        # max_ttl                = 86400
+        viewer_protocol_policy = "redirect-to-https"
+        min_ttl                = 0
+        default_ttl            = "${var.default_ttl}"
+        max_ttl                = 360 # "${var.default_ttl}"
+        compress               = false
     }
 
-    # # Cache behavior with precedence 0
-    # ordered_cache_behavior {
-    #     path_pattern     = "/content/immutable/*"
-    #     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    #     cached_methods   = ["GET", "HEAD", "OPTIONS"]
-    #     target_origin_id = "${local.s3_origin_id}"
-
-    #     forwarded_values {
-    #         query_string = false
-    #         headers = ["Origin"]
-    #         cookies {
-    #             forward = "none"
-    #         }
-    #     }
-
-    #     min_ttl                = 0
-    #     default_ttl            = 86400
-    #     max_ttl                = 31536000
-    #     compress               = true
-    #     viewer_protocol_policy = "redirect-to-https"
-    # }
-
-    # # Cache behavior with precedence 1
-    # ordered_cache_behavior {
-    #     path_pattern     = "/content/*"
-    #     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
-    #     cached_methods   = ["GET", "HEAD"]
-    #     target_origin_id = "${local.s3_origin_id}"
-
-    #     forwarded_values {
-    #         query_string = false
-    #         cookies {
-    #             forward = "none"
-    #         }
-    #     }
-
-    #     min_ttl                = 0
-    #     default_ttl            = 3600
-    #     max_ttl                = 86400
-    #     compress               = true
-    #     viewer_protocol_policy = "redirect-to-https"
-    # }
+    custom_error_response {
+        error_caching_min_ttl 	= 300
+        error_code 				= 404
+        response_code 			= 200
+        response_page_path		= "/index.html"
+    }
 
     price_class = "PriceClass_100" # PriceClass_100 = U.S. Canada & Europe
 
@@ -116,17 +112,30 @@ resource "aws_cloudfront_distribution" "cloudfront" {
     tags = "${merge(var.tags, var.globals["tags"])}"
 
     viewer_certificate {
-        cloudfront_default_certificate = true
+        cloudfront_default_certificate = false
+        acm_certificate_arn = "${var.acm_certificate_arn}"
+        minimum_protocol_version = "${var.minimum_protocol_version}"
+        ssl_support_method = "sni-only"
     }
+
+    price_class = "${var.price_class}"
 }
 
- 
+
 
 output "id" {
-       value = "${aws_cloudfront_distribution.cloudfront.id}"
+    value = "${aws_cloudfront_distribution.cloudfront.id}"
 }
 
 output "arn" {
-       value = "${aws_cloudfront_distribution.cloudfront.arn}"
+    value = "${aws_cloudfront_distribution.cloudfront.arn}"
+}
+
+output "hosted_zone_id" {
+    value = "${aws_cloudfront_distribution.cloudfront.hosted_zone_id}"
+}
+
+output "domain_name" {
+    value = "${aws_cloudfront_distribution.cloudfront.domain_name}"
 }
 
