@@ -143,8 +143,8 @@ resource "aws_iam_instance_profile" "bastion_profile" {
 }
 
 module "bastion_host" {
-    source = "../../../Terraform/instance/basic"
-    # source = "git@github.com:MichaelDeCorte/TerraForm.git//instance/basic"
+    # source = "../instance/basic"
+    source = "git@github.com:MichaelDeCorte/TerraForm.git//instance/basic"
 
     globals		= "${var.globals}"
 
