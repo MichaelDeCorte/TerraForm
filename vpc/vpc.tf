@@ -170,7 +170,7 @@ output "network_acl_id" {
     value 	= "${aws_default_network_acl.public.id}"
 }
 
-output "route_table" {
+output "route_table_id" {
     value 	= "${aws_vpc.main.main_route_table_id}"
 }
 
