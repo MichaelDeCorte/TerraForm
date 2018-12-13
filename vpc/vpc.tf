@@ -41,6 +41,7 @@ locals {
 #################### create the development VPC
 resource "aws_vpc" "main" {
     cidr_block		= "${var.cidr_vpc}"
+
     
     enable_dns_hostnames = true
     
@@ -151,6 +152,10 @@ output "vpc_id" {
 
 output "vpc_arn" {
     value     	= "${aws_vpc.main.arn}"
+}
+
+output "vpc_cidr" {
+    value     	= "${aws_vpc.main.cidr_block}"
 }
 
 output "subnet_id" {
