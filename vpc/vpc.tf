@@ -13,11 +13,11 @@ variable "name" {
     type = "string"
 }
 
-variable "cidr_vpc" {
+variable "vpc_cidr_block" {
     type = "string"
 }
 
-variable "cidr_default_subnet" {
+variable "default_subnet_cidr_block" {
     type = "string"
 }
 
@@ -40,7 +40,7 @@ locals {
 
 #################### create the development VPC
 resource "aws_vpc" "main" {
-    cidr_block		= "${var.cidr_vpc}"
+    cidr_block		= "${var.vpc_cidr_block}"
 
     
     enable_dns_hostnames = true
@@ -65,7 +65,7 @@ data "aws_availability_zones" "available" {}
 
 resource "aws_subnet" "public_a" {
     vpc_id     		= "${aws_vpc.main.id}"
-    cidr_block 		= "${var.cidr_default_subnet}"
+    cidr_block 		= "${var.default_subnet_cidr_block}"
 
     tags			= "${merge(var.tags, 
 						var.globals["tags"], 
@@ -79,18 +79,9 @@ resource "aws_subnet" "public_a" {
 resource "aws_default_route_table" "public_route" {
     default_route_table_id			= "${aws_vpc.main.main_route_table_id}"
 
-    # route {
-    #     cidr_block  = "0.0.0.0/0"
-    #     gateway_id	= "${aws_internet_gateway.gw.id}"
-    # }
-
     tags			= "${merge(var.tags, 
 						var.globals["tags"], 
 						map("Name", "VPC / ${local.region["env"]} / Public / Default") )}"
-    # lifecycle {
-    #     ignore_changes = "*"
-    # }
-
 }
 
 resource "aws_route" "public_route_igw" {
@@ -154,7 +145,7 @@ output "vpc_arn" {
     value     	= "${aws_vpc.main.arn}"
 }
 
-output "vpc_cidr" {
+output "vpc_cidr_block" {
     value     	= "${aws_vpc.main.cidr_block}"
 }
 
@@ -164,6 +155,10 @@ output "subnet_id" {
 
 output "subnet_arn" {
     value		= "${aws_subnet.public_a.arn}"
+}
+
+output "default_subnet_cidr_block" {
+    value     	= "${var.default_subnet_cidr_block}"
 }
 
 output "network_acl_id" {
