@@ -13,11 +13,11 @@ variable "name" {
     type = "string"
 }
 
-variable "vpc_cidr_block" {
+variable "vpc_cidr" {
     type = "string"
 }
 
-variable "default_subnet_cidr_block" {
+variable "default_subnet_cidr" {
     type = "string"
 }
 
@@ -40,7 +40,7 @@ locals {
 
 #################### create the development VPC
 resource "aws_vpc" "main" {
-    cidr_block		= "${var.vpc_cidr_block}"
+    cidr_block		= "${var.vpc_cidr}"
 
     
     enable_dns_hostnames = true
@@ -65,7 +65,7 @@ data "aws_availability_zones" "available" {}
 
 resource "aws_subnet" "public_a" {
     vpc_id     		= "${aws_vpc.main.id}"
-    cidr_block 		= "${var.default_subnet_cidr_block}"
+    cidr_block 		= "${var.default_subnet_cidr}"
 
     tags			= "${merge(var.tags, 
 						var.globals["tags"], 
@@ -145,8 +145,8 @@ output "vpc_arn" {
     value     	= "${aws_vpc.main.arn}"
 }
 
-output "vpc_cidr_block" {
-    value     	= "${aws_vpc.main.cidr_block}"
+output "vpc_cidr" {
+    value     	= "${aws_vpc.main.cidr}"
 }
 
 output "subnet_id" {
@@ -157,8 +157,8 @@ output "subnet_arn" {
     value		= "${aws_subnet.public_a.arn}"
 }
 
-output "default_subnet_cidr_block" {
-    value     	= "${var.default_subnet_cidr_block}"
+output "default_subnet_cidr" {
+    value     	= "${var.default_subnet_cidr}"
 }
 
 output "network_acl_id" {
