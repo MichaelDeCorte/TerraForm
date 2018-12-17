@@ -21,6 +21,10 @@ variable "subnet_id" {
     type = "string"
 }
 
+variable "zone_id" {
+    default = ""
+}
+
 ############################################################
 locals {
     region = "${var.globals["region"]}"    
@@ -162,6 +166,16 @@ module "bastion_host" {
     iam_instance_profile	= "${aws_iam_instance_profile.bastion_profile.name}"
 
     run_list = [ "logrotate" ]
+}
+
+resource "aws_route53_record" "bastion_dns" {
+    count   = "${length(var.zone_id)>0?1:0}"
+
+    zone_id = "${var.zone_id}"
+    name    = "${var.name}"
+    type    = "CNAME"
+    ttl     = "300"
+    records = [ "${module.bastion_host.public_ip}" ]
 }
 
 
