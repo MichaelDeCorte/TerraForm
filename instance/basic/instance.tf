@@ -75,6 +75,12 @@ resource "aws_instance" "instance" {
     tags 						= "${merge(var.depends_id,var.tags, 
 										var.globals["tags"],
 										map("Name", "${var.name}"))}"
+
+    volume_tags					= "${merge(	var.tags, 
+											var.globals["tags"],
+											map("Snapshot", "true"),
+											map("Name", "${var.name}"))}"
+
     associate_public_ip_address	= "${var.associate_public_ip_address}"
 
     subnet_id					= "${var.subnet_id}"
