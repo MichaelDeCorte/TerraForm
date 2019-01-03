@@ -23,10 +23,10 @@ variable "tags" {
 
 # data "aws_caller_identity" "current" {}
 
-locals {
-    region 			= "${var.globals["region"]}"
-#    account_id 		= "${data.aws_caller_identity.current.account_id}"
-}
+# locals {
+#     region 			= "${var.globals["region"]}"
+#     account_id 		= "${data.aws_caller_identity.current.account_id}"
+# }
 
 
 ############################################################
@@ -107,6 +107,14 @@ locals {
 #     role       = "${aws_iam_role.snapshot_role.name}"
 #     policy_arn = "${aws_iam_policy.snapshot_policy.arn}"
 # }
+
+############################################################
+############################################################
+############################################################
+
+locals {
+    region 			= "${var.globals["region"]}"
+}
 
 ##############################
 resource "aws_iam_role" "dlm_lifecycle_role" {
