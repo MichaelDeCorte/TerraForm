@@ -58,9 +58,13 @@ variable "triggers" {
     default = []
 }
 
+variable "batch_size" {
+    default  = "10"
+}
+
 locals {
     triggers = {
-        batch_size = "10"
+        batch_size = "${var.batch_size}"
     }
 }
 
