@@ -71,18 +71,10 @@ variable "stream_view_type" {
     default = ""
 }
 
+variable "billing_mode" {
+    default = "PAY_PER_REQUEST"
+}
 
-# triggers = [
-#     {
-#         name 					= "lambda_name"		# arn or name of lambda function
-#         batch_size 			= 10 				# defaults to local.triggers.batch_size
-#         starting_position 	= "LATEST"			# defaults to local.triggers.starting_position
-#													# https://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_streams_GetShardIterator.html
-#     },
-#     {
-#         name 					= "lambda_arn"		# arn or name of lambda function
-#     }
-# ]
 variable "triggers" {
     default = []
 }
@@ -144,11 +136,19 @@ resource "aws_dynamodb_table" "dynamo_table" {
     hash_key        	= "${var.hash_key}"
     range_key        	= "${var.range_key}"
 
+    lifecycle {
+        ignore_changes = [
+            "read_capacity",
+            "write_capacity"
+        ]
+    }
     
     attribute = [
         "${local.attributes}"
     ]
 
+
+    billing_mode = "${var.billing_mode}"
 
     global_secondary_index		= [
         # # "${null_resource.global_secondary_index.*.triggers}"
@@ -175,6 +175,8 @@ resource "aws_dynamodb_table" "dynamo_table" {
 
 ##############################
 resource "aws_appautoscaling_target" "read_target" {
+    count = "${var.billing_mode == "PAY_PER_REQUEST" ? 0 : 1}"
+
     max_capacity       = "${var.autoscale_max_read_capacity}"
     min_capacity       = "${var.autoscale_min_read_capacity}"
 
@@ -185,6 +187,7 @@ resource "aws_appautoscaling_target" "read_target" {
 }
 
 resource "aws_appautoscaling_policy" "read_target" {
+    count = "${var.billing_mode == "PAY_PER_REQUEST" ? 0 : 1}"
     name               = "DynamoDBReadCapacityUtilization:${aws_appautoscaling_target.read_target.resource_id}"
     policy_type        = "TargetTrackingScaling"
     resource_id        = "${aws_appautoscaling_target.read_target.resource_id}"
@@ -202,6 +205,7 @@ resource "aws_appautoscaling_policy" "read_target" {
 
 ##############################
 resource "aws_appautoscaling_target" "write_target" {
+    count = "${var.billing_mode == "PAY_PER_REQUEST" ? 0 : 1}"
     max_capacity       = "${var.autoscale_max_write_capacity}"
     min_capacity       = "${var.autoscale_min_write_capacity}"
 
@@ -213,6 +217,7 @@ resource "aws_appautoscaling_target" "write_target" {
 
 
 resource "aws_appautoscaling_policy" "write_target" {
+    count = "${var.billing_mode == "PAY_PER_REQUEST" ? 0 : 1}"
     name               = "DynamoDBWriteCapacityUtilization:${aws_appautoscaling_target.write_target.resource_id}"
     policy_type        = "TargetTrackingScaling"
     resource_id        = "${aws_appautoscaling_target.write_target.resource_id}"
@@ -230,7 +235,8 @@ resource "aws_appautoscaling_policy" "write_target" {
 
 ##############################
 resource "null_resource" "global_secondary_index_names" {
-    count = "${length(var.global_secondary_indexes)}"
+    # count = "${length(var.global_secondary_indexes)}"
+    count = "${var.billing_mode == "PAY_PER_REQUEST" ? 0 : length(var.global_secondary_indexes)}"
 
     # Convert the multi-item `global_secondary_index_map` into a
     # simple `map` with just one item `name` since `triggers` does not
@@ -242,7 +248,8 @@ resource "null_resource" "global_secondary_index_names" {
 }
 
 resource "aws_appautoscaling_target" "read_target_index" {
-    count				= "${length(null_resource.global_secondary_index_names.*.triggers.name)}"
+    #    count				= "${length(null_resource.global_secondary_index_names.*.triggers.name)}"
+    count				= "${var.billing_mode == "PAY_PER_REQUEST" ? 0 : length(null_resource.global_secondary_index_names.*.triggers.name)}"
     max_capacity       	= "${var.autoscale_max_read_capacity}"
     min_capacity       	= "${var.autoscale_min_read_capacity}"
     resource_id        	= "table/${aws_dynamodb_table.dynamo_table.name}/index/${element(null_resource.global_secondary_index_names.*.triggers.name, count.index)}"
@@ -251,7 +258,8 @@ resource "aws_appautoscaling_target" "read_target_index" {
 }
 
 resource "aws_appautoscaling_policy" "read_policy_index" {
-    count				= "${length(null_resource.global_secondary_index_names.*.triggers.name)}"
+    #    count				= "${length(null_resource.global_secondary_index_names.*.triggers.name)}"
+    count				= "${var.billing_mode == "PAY_PER_REQUEST" ? 0 : length(null_resource.global_secondary_index_names.*.triggers.name)}"
     name               = "DynamoDBReadCapacityUtilization:${element(aws_appautoscaling_target.read_target_index.*.resource_id, count.index)}"
     policy_type        = "TargetTrackingScaling"
     resource_id        = "${element(aws_appautoscaling_target.read_target_index.*.resource_id, count.index)}"
@@ -268,7 +276,7 @@ resource "aws_appautoscaling_policy" "read_policy_index" {
 }
 ##############################
 resource "aws_appautoscaling_target" "write_target_index" {
-    count				= "${length(null_resource.global_secondary_index_names.*.triggers.name)}"
+    count				= "${var.billing_mode == "PAY_PER_REQUEST" ? 0 : length(null_resource.global_secondary_index_names.*.triggers.name)}"
     max_capacity       	= "${var.autoscale_max_write_capacity}"
     min_capacity       	= "${var.autoscale_min_write_capacity}"
     resource_id        	= "table/${aws_dynamodb_table.dynamo_table.name}/index/${element(null_resource.global_secondary_index_names.*.triggers.name, count.index)}"
@@ -277,7 +285,8 @@ resource "aws_appautoscaling_target" "write_target_index" {
 }
 
 resource "aws_appautoscaling_policy" "write_policy_index" {
-    count				= "${length(null_resource.global_secondary_index_names.*.triggers.name)}"
+    count				= "${var.billing_mode == "PAY_PER_REQUEST" ? 0: length(null_resource.global_secondary_index_names.*.triggers.name)}"
+    # count				= "${length(null_resource.global_secondary_index_names.*.triggers.name)}"
     name               = "DynamoDBWriteCapacityUtilization:${element(aws_appautoscaling_target.write_target_index.*.resource_id, count.index)}"
     policy_type        = "TargetTrackingScaling"
     resource_id        = "${element(aws_appautoscaling_target.write_target_index.*.resource_id, count.index)}"
