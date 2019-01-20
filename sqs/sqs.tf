@@ -80,7 +80,7 @@ resource "aws_sqs_queue" "queue" {
     fifo_queue                  = "${var.fifo_queue}"
     content_based_deduplication = "${var.content_based_deduplication}"
 
-    tags	= "${var.globals["tags"]}"
+    tags 					= "${merge(var.tags, var.globals["tags"])}"
     visibility_timeout_seconds = "${var.visibility_timeout_seconds}"
 
 }
