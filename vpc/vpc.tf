@@ -47,6 +47,7 @@ resource "aws_vpc" "main" {
     
     tags			= "${merge(var.tags, 
 						var.globals["tags"], 
+						map("Service", "ec2.vpc"),
 						map("Name", var.name) )}"
 }
 
@@ -56,6 +57,7 @@ resource "aws_internet_gateway" "gw" {
 
     tags			= "${merge(var.tags, 
 						var.globals["tags"], 
+						map("Service", "ec2.internet-gateways"),
 						map("Name", var.name) )}"
 
 }
@@ -69,6 +71,7 @@ resource "aws_subnet" "public_a" {
 
     tags			= "${merge(var.tags, 
 						var.globals["tags"], 
+						map("Service", "ec2.subnet"),
 						map("Name", "Subnet / ${local.region["env"]} A / Public") )}"
 
     availability_zone = "${data.aws_availability_zones.available.names[0]}"
@@ -81,6 +84,7 @@ resource "aws_default_route_table" "public_route" {
 
     tags			= "${merge(var.tags, 
 						var.globals["tags"], 
+						map("Service", "ec2.route_table"),
 						map("Name", "VPC / ${local.region["env"]} / Public / Default") )}"
 }
 
@@ -104,8 +108,9 @@ resource "aws_default_network_acl" "public" {
     subnet_ids		= [ "${aws_subnet.public_a.id}" ]
 
     tags			= "${merge(var.tags, 
-                                  var.globals["tags"], 
-                                  map("Name", "NACL / ${local.region["env"]} / Public") )}"
+								map("Service", "ec2.network_acl"),
+                                var.globals["tags"], 
+                                map("Name", "NACL / ${local.region["env"]} / Public") )}"
 
     ingress = [
         "${var.ingress_network_acls}"
@@ -122,8 +127,9 @@ resource "aws_default_network_acl" "public" {
 resource "aws_eip" "nat" {
     vpc			= true
     tags		= "${merge(var.tags, 
+						map("Service", "ec2.address"),
 						var.globals["tags"], 
-						map("Name", "NAT Server") )}"
+						map("Name", "NAT Gateway") )}"
 }
 
 resource "aws_nat_gateway" "gw" {
@@ -133,6 +139,7 @@ resource "aws_nat_gateway" "gw" {
 
     tags			= "${merge(var.tags, 
 						var.globals["tags"], 
+						map("Service", "ec2.nat-gateway"),
 						map("Name", "NAT Server / ${local.region["env"]}") )}"
 }
 

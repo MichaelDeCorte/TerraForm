@@ -37,9 +37,10 @@ variable "tags" {
 #     description = "Snapshot EBS volumes"
 #     schedule_expression = "${var.schedule_expression}"
 #     role_arn		= "${aws_iam_role.snapshot_role.arn}"
-
-# #    tags	= "${var.globals["tags"]}"
-   
+#
+#    tags 					= "${merge(var.tags, 
+#								map("Service", "event.rule",)
+#								var.globals["tags"])}"
 # }
 
 # resource "aws_cloudwatch_event_target" "snapshot_event_target" {
@@ -54,9 +55,9 @@ variable "tags" {
 #     #     key    = "tag:Snapshot"
 #     #     values = ["true"]
 #     # }
-# #    tags	= "${var.globals["tags"]}"
 #     # tags 						= "${merge(	var.tags, 
-# 	# 										var.globals["tags"],
+# 	  #										var.globals["tags"],
+#											map("Service", "event.rule"),
 # 	# 										map("Name", "${var.name}"))}"
 
 # }
@@ -189,6 +190,7 @@ resource "aws_dlm_lifecycle_policy" "dlm_policy" {
 
             tags_to_add {
                 SnapshotCreator = "DLM"
+                Service = "ec2.snapshot"
             }
 
             copy_tags = true

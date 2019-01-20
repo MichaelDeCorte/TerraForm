@@ -158,7 +158,9 @@ resource "aws_dynamodb_table" "dynamo_table" {
     stream_enabled		= "${var.stream_view_type == "" ? false : true}"
     stream_view_type	= "${var.stream_view_type}"
     
-    tags 					= "${merge(var.tags, var.globals["tags"])}"
+    tags 					= "${merge(var.tags, 
+								map("Service", "dynamodb.table"),
+								var.globals["tags"])}"
 
     # server_side_encryption { enabled = "true" }  # MRD
     point_in_time_recovery { enabled = true }

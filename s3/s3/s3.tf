@@ -46,7 +46,9 @@ resource "aws_s3_bucket" "S3Bucket" {
         prevent_destroy = true
     }
     
-    tags 					= "${merge(var.tags, var.globals["tags"])}"
+    tags 					= "${merge(var.tags, 
+								map("Service", "s3.bucket"),
+								var.globals["tags"])}"
 }
 
 output "id" {

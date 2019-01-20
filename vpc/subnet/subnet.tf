@@ -47,6 +47,7 @@ resource "aws_subnet" "subnet" {
 
     tags			= "${merge(var.tags, 
 						var.globals["tags"], 
+						map("Service", "ec2.subnet"),
 						map("Name", "Subnet ${var.name}"))}"
 
     availability_zone = "${data.aws_availability_zones.available.names[0]}"
@@ -58,6 +59,7 @@ resource "aws_route_table" "route_table" {
 
     tags			= "${merge(var.tags, 
 						var.globals["tags"], 
+						map("Service", "ec2.route-table"),
 						map("Name", "Route Table ${var.name}"))}"
 }
 
@@ -84,6 +86,7 @@ resource "aws_network_acl" "network_acl" {
 
     tags			= "${merge(var.tags, 
  						var.globals["tags"], 
+						map("Service", "ec2.network_acl"),
  						map("Name", "NACL ${var.name}"))}"
     
 }

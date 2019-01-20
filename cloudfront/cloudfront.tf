@@ -109,7 +109,10 @@ resource "aws_cloudfront_distribution" "cloudfront" {
         }
     }
 
-    tags = "${merge(var.tags, var.globals["tags"])}"
+    tags 					= "${merge(var.tags, 
+								map("Service", "cloudfront.distribution"),
+								var.globals["tags"])}"
+
 
     viewer_certificate {
         cloudfront_default_certificate = false

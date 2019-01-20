@@ -62,6 +62,11 @@ resource "aws_s3_bucket_object" "lambdaFile" {
     source  = "${var.filename}"
     key     = "${replace(var.filename, "/^.*/([^/]*)/", "$1")}"
     etag    = "${md5(file("${var.filename}"))}"
+
+    tags 					= "${merge(var.tags, 
+								map("Service", "s3.object"),
+								var.globals["tags"])}"
+    
 }
 
 
@@ -83,7 +88,10 @@ resource "aws_lambda_function" "aws_lambda" {
     publish	            = "${var.publish}"
     handler	            = "${var.handler}"
 
-    tags		        = "${merge(var.globals["tags"], var.tags)}"
+    tags 					= "${merge(var.tags, 
+								map("Service", "lambda.function"),
+								var.globals["tags"])}"
+    
     environment {
         variables	    = "${merge(var.globals["envVariables"], var.variables)}"
     }

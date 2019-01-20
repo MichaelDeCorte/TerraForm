@@ -34,17 +34,22 @@ variable "buildspec" {
         
 
 variable "tags" {
-	  type = "map"
-	   default = { }
+    type = "map"
+    default = { }
 }
 
 ############################################################
 resource "aws_iam_role" "CodeBuildRole" {
-  name = "CodeBuildRole"
-
-  force_detach_policies = true
+    name = "CodeBuildRole"
     
-  assume_role_policy = "${file("${path.module}/CodeBuildRole.json")}"
+    force_detach_policies = true
+    
+    assume_role_policy = "${file("${path.module}/CodeBuildRole.json")}"
+
+    tags 					= "${merge(var.tags, 
+								map("Service", "iam.role"),
+								var.globals["tags"])}"
+    
 }
 
 ##########
@@ -115,6 +120,8 @@ resource "aws_codebuild_project" "lambda_nodejs" {
         buildspec = "${var.buildspec}"
     }
 
-    tags					= "${merge(var.tags, var.globals["tags"])}"
+    tags 					= "${merge(var.tags, 
+								map("Service", "codebuild.project"),
+								var.globals["tags"])}"
 
 }

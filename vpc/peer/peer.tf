@@ -45,7 +45,9 @@ provider "aws" {
 }
 
 resource "aws_vpc_peering_connection" "peer" {
-    tags                        = "${merge( var.tags,                                                                                                                           var.globals["tags"]) }"
+    tags 					= "${merge(var.tags, 
+								map("Service", "ec2.peering-connection"),
+								var.globals["tags"])}"
 
     vpc_id          = "${var.requester_vpc_id}"
 
@@ -56,7 +58,9 @@ resource "aws_vpc_peering_connection" "peer" {
 # Accepter's side of the connection.                                                                                                         
 resource "aws_vpc_peering_connection_accepter" "peer_accepter" {
     provider                    = "aws.peer"
-    tags                        = "${merge( var.tags,                                                                                                                            var.globals["tags"]) }"
+    tags 					= "${merge(var.tags, 
+								map("Service", "ec2.peering-connection"),
+								var.globals["tags"])}"
 
     vpc_peering_connection_id   = "${aws_vpc_peering_connection.peer.id}"
     auto_accept                 = true

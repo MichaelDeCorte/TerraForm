@@ -37,7 +37,11 @@ variable "publish" {
 }
 ############################################################
 resource "aws_iam_role" "LambdaRole" {
-  name = "LambdaRole"
+    name = "LambdaRole"
+    
+    tags 					= "${merge(var.tags, 
+								map("Service", "iam.role"),
+								var.globals["tags"])}"
 
   assume_role_policy = <<EOF
 {
@@ -72,8 +76,10 @@ resource "aws_lambda_function" "aws_lambda" {
     handler	        = "${var.handler}"
   
     
+    tags 					= "${merge(var.tags, 
+								map("Service", "lambda.function"),
+								var.globals["tags"])}"
 
-    tags		        = "${merge(var.tags, var.globals["tags"])}"
     role              = "${aws_iam_role.LambdaRole.arn}"
     source_code_hash  = "${base64sha256(file("${var.filename}"))}"
     runtime           = "${var.runtime}"

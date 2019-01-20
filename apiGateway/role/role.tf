@@ -13,6 +13,10 @@ resource "aws_iam_role" "awsApiRole" {
     name = "apiGatewayRole"
 
     assume_role_policy = "${file("${path.module}/apiGatewayRole.json")}"
+
+    tags 					= "${merge(var.tags, 
+								map("Service", "iam.role"),
+								var.globals["tags"])}"
 }
 
 resource "aws_iam_role_policy" "awsApiCloudwatchPolicy" {

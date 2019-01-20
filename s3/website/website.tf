@@ -1,5 +1,5 @@
 # website.tf
-    
+
 ############################################################
 # input variables
 variable "globals" {
@@ -7,11 +7,11 @@ variable "globals" {
 }
 
 variable "bucket" {
-	 type = "string"
+    type = "string"
 }
 
 variable "acl" {
-	 default = "public-read"
+    default = "public-read"
 }
 
 variable "force_destroy" {
@@ -23,8 +23,8 @@ variable "index_document" {
 }
 
 variable "tags" {
-	 type = "map"
-	 default = { }
+    type = "map"
+    default = { }
 }
 
 resource "aws_s3_bucket" "website" {
@@ -48,7 +48,9 @@ resource "aws_s3_bucket" "website" {
 }
 EOF
 
-    tags 			= "${merge(var.tags, var.globals["tags"])}"
+    tags 					= "${merge(var.tags, 
+								map("Service", "s3.bucket"),
+								var.globals["tags"])}"
 
     website {
         index_document = "${var.index_document}"
@@ -58,27 +60,27 @@ EOF
 
 
 output "id" {
-       value = "${aws_s3_bucket.website.id}"
+    value = "${aws_s3_bucket.website.id}"
 }
 
 output "arn" {
-       value = "${aws_s3_bucket.website.arn}"
+    value = "${aws_s3_bucket.website.arn}"
 }
 
 output "website_endpoint" {
-       value = "${aws_s3_bucket.website.website_endpoint}"
+    value = "${aws_s3_bucket.website.website_endpoint}"
 }
 
 output "website_domain" {
-       value = "${aws_s3_bucket.website.website_domain}"
+    value = "${aws_s3_bucket.website.website_domain}"
 }
 
 output "hosted_zone_id" {
-       value = "${aws_s3_bucket.website.hosted_zone_id}"
+    value = "${aws_s3_bucket.website.hosted_zone_id}"
 }
 
 output "bucket_regional_domain_name" {
-       value = "${aws_s3_bucket.website.bucket_regional_domain_name}"
+    value = "${aws_s3_bucket.website.bucket_regional_domain_name}"
 }
 
-    
+

@@ -42,6 +42,7 @@ resource "aws_security_group" "bastion" {
 
     tags			= "${merge(var.tags, 
 						var.globals["tags"], 
+						map("Service", "iam.security.group"),
 						map("Name", "Bastion") )}"
 
     ingress { # inbound ssh
@@ -75,6 +76,10 @@ module "bastion_cloudwatch" {
 
 resource "aws_iam_role" "bastion_role" {
     name = "BastionRole${local.region["env"]}"
+
+    tags 					= "${merge(var.tags, 
+								map("Service", "iam.role"),
+								var.globals["tags"])}"
 
     assume_role_policy = <<EOF
 {

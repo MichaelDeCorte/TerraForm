@@ -33,8 +33,7 @@ variable "chmod" {
 data "template_file" "template" {
   template = "${file("${var.input}")}"
 
-  vars =
-     "${var.variables}"
+  vars = "${var.variables}"
 }
 
 resource "null_resource" "rmOutput" {
