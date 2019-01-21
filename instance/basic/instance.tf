@@ -79,7 +79,7 @@ resource "aws_instance" "instance" {
 
     volume_tags					= "${merge(	var.tags, 
 											var.globals["tags"],
-											map("Snapshot", "true"),
+											map("Snapshot", "${local.region["env"]}"),
 											map("Service", "ec2.volume"),
 											map("Name", "${var.name}"))}"
 
