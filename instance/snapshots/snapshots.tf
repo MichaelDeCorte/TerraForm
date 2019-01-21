@@ -197,7 +197,7 @@ resource "aws_dlm_lifecycle_policy" "dlm_policy" {
         }
 
         target_tags {
-            Snapshot = "${local.region["env"]}
+            Snapshot = "${local.region["env"]}"
         }
     }
 }
