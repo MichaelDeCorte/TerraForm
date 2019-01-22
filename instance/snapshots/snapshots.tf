@@ -190,7 +190,6 @@ resource "aws_dlm_lifecycle_policy" "dlm_policy" {
 
             tags_to_add {
                 SnapshotCreator = "DLM"
-                Service = "ec2.snapshot"
             }
 
             copy_tags = true
