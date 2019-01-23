@@ -79,6 +79,10 @@ variable "triggers" {
     default = []
 }
 
+variable "server_side_encryption" {
+    default = false
+}
+
 locals {
     attributes_temp = [
         {
@@ -162,7 +166,10 @@ resource "aws_dynamodb_table" "dynamo_table" {
 								map("Service", "dynamodb.table"),
 								var.globals["tags"])}"
 
-    # server_side_encryption { enabled = "true" }  # MRD
+    server_side_encryption {
+        enabled = "${var.server_side_encryption}"
+    }  
+
     point_in_time_recovery { enabled = true }
 
     # lifecycle {
