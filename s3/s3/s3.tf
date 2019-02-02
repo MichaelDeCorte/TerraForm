@@ -59,4 +59,8 @@ output "arn" {
        value = "${aws_s3_bucket.S3Bucket.arn}"
 }
 
+output "name" {
+       value = "${var.bucket}"
+}
+
     
