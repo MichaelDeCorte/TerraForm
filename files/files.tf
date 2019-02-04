@@ -74,15 +74,15 @@ variable "dependsOn" {
     default = ""
 }
 
-resource "null_resource" "dependsOn" {
+resource "null_resource" "dependsOutput" {
 
     triggers = {
-        value = "${module.partyMethod.dependencyId}"
+        value = "${null_resource.chmodOutput.id}"
     }
 }
 
 output "dependencyId" {
     # value = "${module.partyResource.subPath}"
-    value 	= "${var.dependsOn}:${null_resource.dependsOn.id}"
+    value 	= "${var.dependsOn}:${null_resource.dependsOutput.id}"
 }
 
