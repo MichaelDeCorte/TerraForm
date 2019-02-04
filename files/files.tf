@@ -85,4 +85,4 @@ output "dependencyId" {
     # value = "${module.partyResource.subPath}"
     value 	= "${var.dependsOn}:${null_resource.dependsOn.id}"
 }
-}
+
