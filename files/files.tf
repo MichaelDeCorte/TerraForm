@@ -68,3 +68,6 @@ resource "null_resource" "chmodOutput" {
     depends_on = ["null_resource.createOutput"]
 }
     
+output "output" {
+    value = "${var.output}"
+}
