@@ -73,6 +73,16 @@ resource "null_resource" "chmodOutput" {
 }
     
 ############################################################
+output "input" {
+    value = "${var.input}"
+}
+
+output "output" {
+    value = "${var.output}"
+}
+
+
+############################################################
 # hack for lack of depends_on
 variable "dependsOn" {
     default = ""
