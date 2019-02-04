@@ -68,6 +68,21 @@ resource "null_resource" "chmodOutput" {
     depends_on = ["null_resource.createOutput"]
 }
     
-output "output" {
-    value = "${var.output}"
+############################################################
+# hack for lack of depends_on
+variable "dependsOn" {
+    default = ""
+}
+
+resource "null_resource" "dependsOn" {
+
+    triggers = {
+        value = "${module.partyMethod.dependencyId}"
+    }
+}
+
+output "dependencyId" {
+    # value = "${module.partyResource.subPath}"
+    value 	= "${var.dependsOn}:${null_resource.dependsOn.id}"
+}
 }
