@@ -27,10 +27,6 @@ variable "chmod" {
     default = "aog-w" 
 }
  
-variable "dependsOn" {
-    default = ""
-}
-
 ############################################################
 # samTemplate.yaml, update with role
 
