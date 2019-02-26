@@ -20,7 +20,7 @@ variable "to" {
 
 locals {
     awsProfile = "${var.globals["awsProfile"]}"
-    hashfile = ".hash.${replace(replace(format("%s.%s", var.from, var.to), "/[~/:]/", "."), "/\\.{2,}/" ,".")}.zip"
+    hashfile = "${path.module}/.hash.${replace(replace(format("%s.%s", var.from, var.to), "/[~/:]/", "."), "/\\.{2,}/" ,".")}.zip"
 }
 
 # create a zip file for the sole purpose of creating a dependency to copy the dir to s3 or not
@@ -46,8 +46,18 @@ resource "null_resource" "copy_dir" {
 
 }
 
+##############################
 output "hash" {
+    depends_on = [
+        "null_resource.copy_dir"
+    ]
+
     value = "${sha1(file(local.hashfile))}"
+}
+
+output "hashfile" {
+
+    value = "${local.hashfile}"
 }
 
 ############################################################                                                                                # hack for lack of depends_on                                                                                                                
@@ -57,13 +67,13 @@ variable "dependsOn" {
 
 resource "null_resource" "dependsOn" {
 
-    triggers = {
-        value = "${sha1(file(local.hashfile))}"
-    }
+    # triggers = {
+    #     value = "${sha1(file(local.hashfile))}"
+    # }
 
-    # depends_on = [
-    #     "aws_s3_bucket.website"
-    # ]
+    depends_on = [
+        "null_resource.copy_dir"
+    ]
 }
 
 output "dependencyId" {
