@@ -67,8 +67,8 @@ module "cloudtrail_loggroup" {
 
 
 module "cloudtrail_cloudwatch_role" {
-    source = "../iam/role"
-    # source = "git@github.com:MichaelDeCorte/Terraform.git//iam/role"
+    # source = "../iam/role"
+    source = "git@github.com:MichaelDeCorte/Terraform.git//iam/role"
 
     globals = "${var.globals}"
 
@@ -92,8 +92,8 @@ POLICY
 }
 
 module "cloudtrail_cloudwatch_policy" {
-    source = "../iam/policy"
-    # source = "git@github.com:MichaelDeCorte/Terraform.git//iam/policy"
+    #source = "../iam/policy"
+    source = "git@github.com:MichaelDeCorte/Terraform.git//iam/policy"
 
     globals = "${var.globals}"
 
