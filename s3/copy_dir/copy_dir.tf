@@ -18,9 +18,13 @@ variable "to" {
 	 type = "string"
 }
 
+variable "cwd" {
+    default = "."
+}
+
 locals {
     awsProfile = "${var.globals["awsProfile"]}"
-    hashfile = "${path.module}/.hash.${replace(replace(format("%s.%s", var.from, var.to), "/[~/:]/", "."), "/\\.{2,}/" ,".")}.zip"
+    hashfile = "${var.cwd}/.hash.${replace(replace(format("%s.%s", var.from, var.to), "/[~/:]/", "."), "/\\.{2,}/" ,".")}.zip"
 }
 
 # create a zip file for the sole purpose of creating a dependency to copy the dir to s3 or not
