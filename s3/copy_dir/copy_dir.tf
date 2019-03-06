@@ -60,7 +60,6 @@ output "hash" {
 }
 
 output "hashfile" {
-
     value = "${local.hashfile}"
 }
 
