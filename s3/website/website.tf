@@ -27,6 +27,29 @@ variable "tags" {
     default = { }
 }
 
+variable "allowed_headers" {
+    default = ["*"]
+}
+
+variable "allowed_methods" {
+    default = [
+        "GET",
+        "HEAD",
+        "POST",
+        "PUT",
+        "DELETE"
+    ]
+}
+
+variable "allowed_origins" {
+    default = []
+}
+
+variable "max_age_seconds" {
+    default = 3000
+}
+
+##############################
 resource "aws_s3_bucket" "website" {
     bucket          = "${var.bucket}"
     acl             = "${var.acl}"
@@ -47,6 +70,14 @@ resource "aws_s3_bucket" "website" {
     ]
 }
 EOF
+
+    # https://github.com/hashicorp/terraform/issues/16582
+    cors_rule = {
+        allowed_headers = [ "${var.allowed_headers}" ]
+        allowed_methods = [ "${var.allowed_methods}" ]
+        allowed_origins = [ "${var.allowed_origins}" ]
+        max_age_seconds = "${var.max_age_seconds}"
+    }    
 
     tags 					= "${merge(var.tags, 
 								map("Service", "s3.bucket"),
