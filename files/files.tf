@@ -46,28 +46,18 @@ resource "null_resource" "rmOutput" {
     }
 }
     
-resource "null_resource" "createOutput" {
-    triggers = "${merge(var.variables,
-                        map("template", "${file("${var.input}")}")
-                )}"
+resource "local_file"  "createOutput" {
+    content = "${data.template_file.template.rendered}"
+    filename = "${var.output}"
 
-    provisioner "local-exec" {
-        command = "cat > ${var.output}<<EOL\n${data.template_file.template.rendered}\nEOL"
-    }
     depends_on = ["null_resource.rmOutput"]
-}
-    
-resource "null_resource" "chmodOutput" {
-    triggers = "${merge(var.variables,
-                        map("template", "${file("${var.input}")}")
-                )}"
 
     provisioner "local-exec" {
         command = "chmod ${var.chmod} ${var.output}"
     }
-    depends_on = ["null_resource.createOutput"]
+
 }
-    
+
 ############################################################
 output "input" {
     value = "${var.input}"
@@ -86,8 +76,9 @@ variable "dependsOn" {
 
 resource "null_resource" "dependsOutput" {
 
-    triggers = {
-        value = "${null_resource.chmodOutput.id}"
+    triggers {
+        content = "${local_file.createOutput.content}",
+        filename = "${local_file.createOutput.filename}"
     }
 }
 
