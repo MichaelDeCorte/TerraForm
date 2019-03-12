@@ -14,7 +14,7 @@ variable "input" {
 
 # output file that will be created from template and variable substituion
 variable "output" {
-    type = "string"
+    type = "list"
 }
 
 # a map of variables that will be substituted in the template file
@@ -37,23 +37,27 @@ data "template_file" "template" {
 }
 
 resource "null_resource" "rmOutput" {
+    count = "${length(var.output)}"
+
     triggers = "${merge(var.variables,
                         map("template", "${file("${var.input}")}")
                 )}"
 
     provisioner "local-exec" {
-        command = "rm -f ${var.output}"
+        command = "rm -f ${var.output[count.index]}"
     }
 }
     
 resource "local_file"  "createOutput" {
+    count = "${length(var.output)}"
+    
     content = "${data.template_file.template.rendered}"
-    filename = "${var.output}"
+    filename = "${var.output[count.index]}"
 
     depends_on = ["null_resource.rmOutput"]
 
     provisioner "local-exec" {
-        command = "chmod ${var.chmod} ${var.output}"
+        command = "chmod ${var.chmod} ${var.output[count.index]}"
     }
 
 }
@@ -75,15 +79,15 @@ variable "dependsOn" {
 }
 
 resource "null_resource" "dependsOutput" {
-
+    count = "${length(var.output)}"
+    
     triggers {
-        content = "${local_file.createOutput.content}",
-        filename = "${local_file.createOutput.filename}"
+        content = "${local_file.createOutput.*.content[count.index]}",
+        filename = "${local_file.createOutput.*.filename[count.index]}"
     }
 }
 
 output "dependencyId" {
-    # value = "${module.partyResource.subPath}"
-    value 	= "${var.dependsOn}:${null_resource.dependsOutput.id}"
+    value 	= "${var.dependsOn}:${join(":", null_resource.dependsOutput.*.id)}}"
 }
 
