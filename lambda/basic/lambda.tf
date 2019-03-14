@@ -1,5 +1,3 @@
-# 
-
 ############################################################
 # input variables
 
@@ -47,8 +45,17 @@ variable "variables" {
 	 type = "map"
 	 default = { }
 }
-    
 
+variable "alias" {
+    default = ""
+}
+
+locals {
+    region            	= "${var.globals["region"]}"
+    env					= "${local.region["env"]}"
+    alias				= "${var.alias != "" ? var.alias : local.env}"
+}
+    
 ############################################################
 module "LambdaRole" {
     # source = "../role"
@@ -85,19 +92,26 @@ resource "aws_lambda_function" "aws_lambda" {
 
     function_name           = "${var.function_name}"
 
-    publish	            = "${var.publish}"
-    handler	            = "${var.handler}"
+    publish	            	= "${var.publish}" # versioning
+    handler	            	= "${var.handler}"
 
     tags 					= "${merge(var.tags, 
 								map("Service", "lambda.function"),
 								var.globals["tags"])}"
-    
     environment {
-        variables	    = "${merge(var.globals["envVariables"], var.variables)}"
+        variables	    	= "${merge(var.globals["envVariables"], var.variables)}"
     }
-    role                = "${module.LambdaRole.arn}"
-    runtime             = "${var.runtime}"
+    role                	= "${module.LambdaRole.arn}"
+    runtime             	= "${var.runtime}"
+}
 
+resource "aws_lambda_alias" "alias" {
+    count 					= "${var.publish}"
+
+    name					= "${local.alias}"
+    description				= "${local.alias} environment"
+    function_name			= "${aws_lambda_function.aws_lambda.arn}"
+    function_version		= "${aws_lambda_function.aws_lambda.version}"
 }
 
 # create CloudWatch LogGroup
@@ -113,9 +127,9 @@ module "lambdaLogGroup" {
     globals = "${var.globals}"
 }    
 
-
 output "invoke_arn" {
-       value = "${aws_lambda_function.aws_lambda.invoke_arn}"
+    # hack https://github.com/hashicorp/terraform/issues/16681
+    value =  "${var.publish ? element(concat(aws_lambda_alias.alias.*.invoke_arn, list("")), 0) : aws_lambda_function.aws_lambda.invoke_arn}"
 }
 
 output "function_name" {
@@ -124,13 +138,19 @@ output "function_name" {
 
 ############################################################
 # hack for lack of depends_on
-variable "depends_on" {
+variable "dependsOn" {
     default = ""
 }
 
-resource "null_resource" "depends_on" {
+resource "null_resource" "dependsOn" {
+    depends_on = [
+        "module.LambdaRole",
+        "aws_s3_bucket_object.lambdaFile",
+        "aws_lambda_function.aws_lambda",
+        "module.lambdaLogGroup"
+    ]
 }
 
-output "depends_on" {
-    value = "${null_resource.depends_on.id}"
+output "dependsOn" {
+    value = "${null_resource.dependsOn.id}"
 }

@@ -45,8 +45,12 @@ module "apiStageLogGroup" {
 # ########## ============================================================
 resource "aws_api_gateway_deployment" "apiDeployment" {
     rest_api_id = "${var.api_id}"
-    # stage_name  = "${var.stage_name}"
-    stage_name = "${var.dependsOn == "production" ? var.dependsOn : var.stage_name}"
+    stage_name = "${var.stage_name}"
+    variables = {
+        # hack to address dependency of aws_api_gateway_deployment on aws_api_gateway_integration and aws_api_gateway_method
+        # but there's no TF module dependency support
+        terraformDependency = "${var.dependsOn}" # mrd
+    }
 }
 
 # enable logging for this api
@@ -83,12 +87,13 @@ variable "dependsOn" {
 }
 
 resource "null_resource" "dependsOn" {
-    triggers = {
-        value = "${aws_api_gateway_deployment.apiDeployment.invoke_url}"
-    }
+    depends_on = [
+        "aws_api_gateway_deployment.apiDeployment"
+    ]
+
 }
 
 output "dependencyId" {
     # value = "${module.partyResource.subPath}"
-    value 	= "${var.dependsOn}:${null_resource.dependsOn.id}"
+    value 	= "${var.dependsOn}:apiGateway/deployment/${null_resource.dependsOn.id}"
 }

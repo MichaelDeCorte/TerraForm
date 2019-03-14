@@ -110,17 +110,34 @@ variable "dependsOn" {
     default = ""
 }
 
-resource "null_resource" "dependsOn" {
+resource "null_resource" "apiMethodRequest" {
     depends_on = [
-        "aws_api_gateway_method.apiMethodRequest",
-        "aws_api_gateway_integration.methodIntegrationRequest",
-        "aws_api_gateway_method_response.200MethodResponse",
+        "aws_api_gateway_method.apiMethodRequest"
+    ]
+}
+
+resource "null_resource" "methodIntegrationRequest" {
+    depends_on = [
+        "aws_api_gateway_integration.methodIntegrationRequest"
+    ]
+}
+
+resource "null_resource" "200MethodResponse" {
+    depends_on = [
+        "aws_api_gateway_method_response.200MethodResponse"
+    ]
+}
+
+resource "null_resource" "500MethodResponse" {
+    depends_on = [
         "aws_api_gateway_method_response.500MethodResponse"
     ]
 }
 
 output "dependencyId" {
-    value 	= "${var.dependsOn}:${null_resource.dependsOn.id}"
+    
+    value 	= "${var.dependsOn}:${aws_api_gateway_integration.methodIntegrationRequest.rest_api_id}"
+
 }
 
 
