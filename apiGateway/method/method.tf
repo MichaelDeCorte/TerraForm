@@ -112,6 +112,8 @@ variable "dependsOn" {
 
 resource "null_resource" "dependsOn" {
     depends_on = [
+        "aws_api_gateway_method.apiMethodRequest",
+        "aws_api_gateway_integration.methodIntegrationRequest",
         "aws_api_gateway_method_response.200MethodResponse",
         "aws_api_gateway_method_response.500MethodResponse"
     ]
