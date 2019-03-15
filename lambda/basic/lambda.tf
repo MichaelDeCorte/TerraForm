@@ -132,6 +132,10 @@ output "invoke_arn" {
     value =  "${var.publish ? element(concat(aws_lambda_alias.alias.*.invoke_arn, list("")), 0) : aws_lambda_function.aws_lambda.invoke_arn}"
 }
 
+output "arn" {
+    value =  "${aws_lambda_function.aws_lambda.arn}"
+}
+
 output "function_name" {
        value = "${aws_lambda_function.aws_lambda.function_name}"
 }
