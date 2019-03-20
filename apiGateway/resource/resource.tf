@@ -17,7 +17,7 @@ variable "api_id" {
     type = "string"
 }
 
-variable "resource_id" {
+variable "parent_id" {
     type = "string"
 }
 
@@ -30,12 +30,12 @@ variable "path_part" {
 
 resource "aws_api_gateway_resource" "apiResource" {
     rest_api_id = "${var.api_id}"
-    parent_id   = "${var.resource_id}"
+    parent_id   = "${var.parent_id}"
     path_part   = "${var.path_part}"
 }
 
 ############################################################    
-output "resource_id" {
+output "id" {
     value = "${aws_api_gateway_resource.apiResource.id}"
 }
 

@@ -60,6 +60,11 @@ resource "aws_api_gateway_authorizer" "authorizer" {
 output "api_id" {
     value = "${aws_api_gateway_rest_api.gatewayApi.id}"
 }
+
+output "execution_arn" {
+    value = "${aws_api_gateway_rest_api.gatewayApi.execution_arn}"
+}
+
 output "root_resource_id" {
     value = "${aws_api_gateway_rest_api.gatewayApi.root_resource_id}"
 }

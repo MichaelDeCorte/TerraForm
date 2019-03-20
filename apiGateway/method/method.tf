@@ -48,14 +48,12 @@ resource "aws_api_gateway_method" "apiMethodRequest" {
     rest_api_id   = "${var.api_id}"
     resource_id   = "${var.resource_id}"
     http_method   = "POST"
-    # authorization = "NONE" ### mrd
     authorization = "COGNITO_USER_POOLS"
     authorizer_id = "${var.authorizer_id}"
 }
 
 resource "aws_api_gateway_integration" "methodIntegrationRequest" {
     rest_api_id = "${var.api_id}"
-    # resource_id = "${aws_api_gateway_method.apiMethodRequest.resource_id}"
     resource_id   = "${var.resource_id}"
     http_method = "${aws_api_gateway_method.apiMethodRequest.http_method}"
     
@@ -103,6 +101,11 @@ resource "aws_api_gateway_method_response" "500MethodResponse" {
         "method.response.header.Access-Control-Allow-Origin" = true
     }
 }
+
+##############################
+output "function_uri" {
+    value = "${var.function_uri}"
+}    
 
 ############################################################
 # hack for lack of depends_on

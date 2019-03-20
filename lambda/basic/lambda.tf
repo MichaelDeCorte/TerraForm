@@ -106,7 +106,7 @@ resource "aws_lambda_function" "aws_lambda" {
 }
 
 resource "aws_lambda_alias" "alias" {
-    count 					= "${var.publish}"
+    count 					= "${var.publish ? 1 : 0}"
 
     name					= "${local.alias}"
     description				= "${local.alias} environment"
@@ -132,12 +132,17 @@ output "invoke_arn" {
     value =  "${var.publish ? element(concat(aws_lambda_alias.alias.*.invoke_arn, list("")), 0) : aws_lambda_function.aws_lambda.invoke_arn}"
 }
 
+# needed for aws_lambda_permission
+output "qualifier" {
+    value =  "${var.publish ? local.alias : ""}"
+}
+
 output "arn" {
     value =  "${aws_lambda_function.aws_lambda.arn}"
 }
 
 output "function_name" {
-       value = "${aws_lambda_function.aws_lambda.function_name}"
+    value = "${aws_lambda_function.aws_lambda.function_name}"
 }
 
 ############################################################
