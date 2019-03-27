@@ -35,7 +35,7 @@ locals {
     region_map 		= "${var.globals["region"]}"
     region 			= "${local.region_map["region"]}"
     account_id 		= "${data.aws_caller_identity.current.account_id}"
-    loggroup_name 	= "cloudtrail/${local.region["env"]_}logs"
+    loggroup_name 	= "cloudtrail/logs"
 }
 
 ##############################
