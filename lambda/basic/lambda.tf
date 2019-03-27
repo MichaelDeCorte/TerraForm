@@ -122,7 +122,7 @@ module "lambdaLogGroup" {
     # source = "../../cloudwatch/logGroup"
     source = "git@github.com:MichaelDeCorte/Terraform.git//cloudwatch/logGroup"
 
-    name = "/aws/lambda/${var.function_name}"
+    name = "/aws/lambda/${local.region["env"]}_${var.function_name}"
 
     globals = "${var.globals}"
 }    
