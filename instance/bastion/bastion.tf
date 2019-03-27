@@ -71,7 +71,7 @@ module "bastion_cloudwatch" {
 
     globals		= "${var.globals}"
 
-    name = "Bastion_${local.region["env"]}"
+    name = "ec2/${local.region["env"]}_bastion"
 }
 
 resource "aws_iam_role" "bastion_role" {
