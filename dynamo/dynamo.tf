@@ -83,6 +83,10 @@ variable "server_side_encryption" {
     default = false
 }
 
+variable "table_name_prefix" {
+    default = ""
+}
+
 locals {
     attributes_temp = [
         {
@@ -134,7 +138,8 @@ locals {
 # }
 
 resource "aws_dynamodb_table" "dynamo_table" {
-    name            	= "${var.name}"
+    # name            	= "${var.name}"
+    name				= "${var.table_name_prefix}${var.name}"
     read_capacity   	= "${var.read_capacity}"
     write_capacity  	= "${var.write_capacity}"
     hash_key        	= "${var.hash_key}"
