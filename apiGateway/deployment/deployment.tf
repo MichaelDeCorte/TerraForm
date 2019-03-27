@@ -89,7 +89,8 @@ resource "aws_api_gateway_method_settings" "apiSettings" {
 
 ############################################################
 output "invoke_url" {
-    value = "${aws_api_gateway_deployment.apiDeployment.invoke_url}"
+    # value = "${aws_api_gateway_deployment.apiDeployment.invoke_url}"
+    value = "${aws_api_gateway_stage.apiStage.invoke_url}"
 }
 
 output "stage_name" {
@@ -97,7 +98,8 @@ output "stage_name" {
 }
 
 output "execution_arn" {
-    value = "${aws_api_gateway_deployment.apiDeployment.execution_arn}"
+    # value = "${aws_api_gateway_deployment.apiDeployment.execution_arn}"
+    value = "${aws_api_gateway_stage.apiStage.execution_arn}"
 }
 
 ############################################################
