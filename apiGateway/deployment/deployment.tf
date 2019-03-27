@@ -27,6 +27,10 @@ variable "tags" {
      default = { }
 }
 
+locals {
+    region              = "${var.globals["region"]}"
+}
+
 ##############################
 variable "logging_level" {
     # OFF ERROR INFO
@@ -42,7 +46,7 @@ module "apiStageLogGroup" {
     # source = "../../cloudwatch/logGroup"
     source = "git@github.com:MichaelDeCorte/Terraform.git//cloudwatch/logGroup"
 
-    name = "api/${var.stage_name}_API-Gateway-Execution-Logs_${var.api_id}"
+    name = "api/${local.region["env"]}_API-Gateway-Execution-Logs_${var.api_id}"
     globals = "${var.globals}"
 }    
 
