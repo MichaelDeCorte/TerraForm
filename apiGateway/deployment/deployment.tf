@@ -50,9 +50,6 @@ module "apiStageLogGroup" {
 ##############################
 resource "aws_api_gateway_deployment" "apiDeployment" {
     rest_api_id = "${var.api_id}"
-    # stage_name = "${var.stage_name}"
-    # stage_name should be optional https://github.com/terraform-providers/terraform-provider-aws/issues/2918
-    stage_name = "${var.stage_name}"
     variables = {
         # hack to address dependency of aws_api_gateway_deployment on aws_api_gateway_integration and aws_api_gateway_method
         # but there's no TF module dependency support
@@ -61,16 +58,16 @@ resource "aws_api_gateway_deployment" "apiDeployment" {
 }
 
 
-# ##############################
-# resource "aws_api_gateway_stage" "apiStage" {
-#     rest_api_id 	= "${var.api_id}"
-#     stage_name 		= "${var.stage_name}"
-#     deployment_id 	= "${aws_api_gateway_deployment.apiDeployment.id}"
-#     description 	= "Stage / ${var.stage_name}"
-#     tags                    = "${merge(var.tags,                                                                               
-#                                 map("Service", "apigateway:stage"),                                                                   
-#                                 var.globals["tags"])}"
-# }
+##############################
+resource "aws_api_gateway_stage" "apiStage" {
+    rest_api_id 	= "${var.api_id}"
+    stage_name 		= "${var.stage_name}"
+    deployment_id 	= "${aws_api_gateway_deployment.apiDeployment.id}"
+    description 	= "Stage / ${var.stage_name}"
+    tags                    = "${merge(var.tags,                                                                               
+                                map("Service", "apigateway:stage"),                                                                   
+                                var.globals["tags"])}"
+}
 
 # enable logging for this api
 resource "aws_api_gateway_method_settings" "apiSettings" {
@@ -81,7 +78,6 @@ resource "aws_api_gateway_method_settings" "apiSettings" {
 
     rest_api_id = "${var.api_id}"
     stage_name  = "${aws_api_gateway_stage.apiStage.stage_name}"
-    stage_name  = "${var.stage_name}"
     method_path = "*/*" # log all methods
     
     settings {
@@ -97,8 +93,7 @@ output "invoke_url" {
 }
 
 output "stage_name" {
-    # value = "${aws_api_gateway_stage.apiStage.stage_name}"
-    value = "${var.stage_name}"
+    value = "${aws_api_gateway_stage.apiStage.stage_name}"
 }
 
 output "execution_arn" {
