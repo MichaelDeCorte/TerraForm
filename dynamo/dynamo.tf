@@ -271,7 +271,7 @@ resource "aws_appautoscaling_target" "read_target_index" {
     service_namespace  	= "dynamodb"
 }
 
-resource "aws_appautoscaling_policy" "read_policy_index" {
+resource "aws_appautoscaling_policy" "read_target_index" {
     #    count				= "${length(null_resource.global_secondary_index_names.*.triggers.name)}"
     count				= "${var.billing_mode == "PAY_PER_REQUEST" ? 0 : length(null_resource.global_secondary_index_names.*.triggers.name)}"
     name               = "DynamoDBReadCapacityUtilization:${element(aws_appautoscaling_target.read_target_index.*.resource_id, count.index)}"
@@ -298,7 +298,7 @@ resource "aws_appautoscaling_target" "write_target_index" {
     service_namespace  	= "dynamodb"
 }
 
-resource "aws_appautoscaling_policy" "write_policy_index" {
+resource "aws_appautoscaling_policy" "write_target_index" {
     count				= "${var.billing_mode == "PAY_PER_REQUEST" ? 0: length(null_resource.global_secondary_index_names.*.triggers.name)}"
     # count				= "${length(null_resource.global_secondary_index_names.*.triggers.name)}"
     name               = "DynamoDBWriteCapacityUtilization:${element(aws_appautoscaling_target.write_target_index.*.resource_id, count.index)}"

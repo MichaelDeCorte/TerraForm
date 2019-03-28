@@ -48,11 +48,12 @@ variable "depends" {
 
 resource "null_resource" "depends" {
     depends_on = [
-        "module.apiGatewayRole",
-        "aws_api_gateway_authorizer.authorizer"
+        "aws_iam_role.awsApiRole",
+        "aws_iam_role_policy.awsApiCloudwatchPolicy",
+        "aws_api_gateway_account.awsApi"
     ]
 }
 
 output "depends" {
-    value   = "${var.depends}:apigateway/role/${aws_iam_role.awsApiRole.arn}"
+    value   = "${var.depends}:apigateway/role/${null_resource.depends.id}"
 }

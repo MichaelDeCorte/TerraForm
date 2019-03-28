@@ -203,7 +203,7 @@ resource "null_resource" "depends" {
         "aws_route.public_route_igw",
         "aws_route_table_association.public_a",
         "aws_default_network_acl.public",
-        "aws_net_gateway.gw"
+        "aws_nat_gateway.gw"
     ]
 }
 
