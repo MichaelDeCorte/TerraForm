@@ -52,3 +52,20 @@ resource "aws_s3_bucket_policy" "cloudtrail_policy" {
 }
 POLICY
 }
+
+############################################################
+# hack for lack of depends_on
+variable "dependsOn" {
+    default = ""
+}
+
+resource "null_resource" "dependsOn" {
+    depends_on = [
+        "aws_s3_bucket_policy.cloudtrail_policy"
+    ]
+}
+
+output "dependencyId" {
+    # value = "${module.partyResource.subPath}"
+    value 	= "${var.dependsOn}:cloudtrail/policy/${null_resource.dependsOn.id}"
+}

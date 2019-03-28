@@ -64,3 +64,20 @@ output "name" {
 }
 
     
+############################################################
+# hack for lack of depends_on
+variable "dependsOn" {
+    default = ""
+}
+
+# resource "null_resource" "dependsOn" {
+#     depends_on = [
+#         "aws_s3_bucket.S3Bucket"
+#     ]
+
+# }
+
+output "dependencyId" {
+    # value = "${module.partyResource.subPath}"
+    value 	= "s3/${aws_s3_bucket.S3Bucket.arn}"
+}

@@ -35,11 +35,16 @@ locals {
     region_map 		= "${var.globals["region"]}"
     region 			= "${local.region_map["region"]}"
     account_id 		= "${data.aws_caller_identity.current.account_id}"
-    loggroup_name 	= "cloudtrail/logs"
+    role_name 		= "CloudTrailCloudWatchRole"
 }
 
 ##############################
 resource "aws_cloudtrail" "trail" {
+    depends_on = [
+        "module.cloudtrail_cloudwatch_policy",
+        "module.cloudtrail_cloudwatch_role"
+    ]
+
     name                          = "${var.name}"
     s3_bucket_name                = "${var.bucket}"
     include_global_service_events = "${var.include_global_service_events}"
@@ -61,7 +66,7 @@ module "cloudtrail_loggroup" {
 
     globals = "${var.globals}"
 
-    name = "${local.loggroup_name}"
+    name = "${var.name}"
 }    
 
 
@@ -72,7 +77,7 @@ module "cloudtrail_cloudwatch_role" {
 
     globals = "${var.globals}"
 
-    name = "cloudtrail_cloudwatch_role"
+    name = "${local.role_name}"
 
     assume_role_policy = <<POLICY
 {
@@ -92,14 +97,14 @@ POLICY
 }
 
 module "cloudtrail_cloudwatch_policy" {
-    #source = "../iam/policy"
+    # source = "../iam/policy"
     source = "git@github.com:MichaelDeCorte/Terraform.git//iam/policy"
 
     globals = "${var.globals}"
 
-    name = "cloudtrail_cloudwatch_policy"
+    name = "CloudTrailCloudWatchPolicy"
 
-    role = "${module.cloudtrail_cloudwatch_role.name}"
+    role = "${local.role_name}"
 
     policy = <<POLICY
 {
@@ -112,7 +117,7 @@ module "cloudtrail_cloudwatch_policy" {
                 "logs:CreateLogStream"
             ],
             "Resource": [
-                 "arn:aws:logs:${local.region}:${local.account_id}:log-group:${local.loggroup_name}:log-stream:${local.account_id}_CloudTrail_${local.region}*"
+                 "arn:aws:logs:${local.region}:${local.account_id}:log-group:${var.name}:log-stream:${local.account_id}_CloudTrail_${local.region}*"
             ]
         },
         {
@@ -122,7 +127,7 @@ module "cloudtrail_cloudwatch_policy" {
                 "logs:PutLogEvents"
             ],
             "Resource": [
-                 "arn:aws:logs:${local.region}:${local.account_id}:log-group:${local.loggroup_name}:log-stream:${local.account_id}_CloudTrail_${local.region}*"
+                 "arn:aws:logs:${local.region}:${local.account_id}:log-group:${var.name}:log-stream:${local.account_id}_CloudTrail_${local.region}*"
             ]
         }
     ]
@@ -143,3 +148,20 @@ output "home_region" {
        value = "${aws_cloudtrail.trail.home_region}"
 }
 
+
+############################################################
+# hack for lack of depends_on
+variable "dependsOn" {
+    default = ""
+}
+
+resource "null_resource" "dependsOn" {
+    depends_on = [
+        "aws_cloudtrail.trail"
+    ]
+}
+
+output "dependencyId" {
+    # value = "${module.partyResource.subPath}"
+    value 	= "${var.dependsOn}:cloudtrail/trail/${null_resource.dependsOn.id}"
+}
