@@ -151,7 +151,7 @@ variable "depends" {
 resource "null_resource" "depends" {
     depends_on = [
         "aws_route.private_route_a_nat",
-        "aws_route_table_association.route_asociation"
+        "aws_route_table_association.route_association"
     ]
 }
 
