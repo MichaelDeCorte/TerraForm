@@ -57,7 +57,7 @@ resource "aws_api_gateway_deployment" "apiDeployment" {
     variables = {
         # hack to address dependency of aws_api_gateway_deployment on aws_api_gateway_integration and aws_api_gateway_method
         # but there's no TF module dependency support
-        terraformDependency = "${var.dependsOn}" # mrd
+        terraformDependency = "${var.depends}" # mrd
     }
 }
 
@@ -108,18 +108,10 @@ output "execution_arn" {
 
 ############################################################
 # hack for lack of depends_on
-variable "dependsOn" {
+variable "depends" {
     default = ""
 }
 
-resource "null_resource" "dependsOn" {
-    depends_on = [
-        "aws_api_gateway_deployment.apiDeployment"
-    ]
-
-}
-
-output "dependencyId" {
-    # value = "${module.partyResource.subPath}"
-    value 	= "${var.dependsOn}:apiGateway/deployment/${null_resource.dependsOn.id}"
+output "depends" {
+    value 	= "${var.depends}:apiGateway/deployment/${aws_api_gateway_deployment.apiDeployment.id}"
 }

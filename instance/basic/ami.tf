@@ -23,3 +23,14 @@ data "aws_ami" "linux_ami" {
      owners = [ "amazon" ]
 }
 
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+output "depends" {
+    value   = "${var.depends}"
+}
+

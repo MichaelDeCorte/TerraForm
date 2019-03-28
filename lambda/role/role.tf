@@ -61,11 +61,24 @@ resource "aws_iam_role" "LambdaRole" {
     
 }
 
+##############################
 output "arn" {
     value = "${aws_iam_role.LambdaRole.arn}"
 }
 
 output "roleName" {
     value = "${aws_iam_role.LambdaRole.name}"
+}
+
+
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+output "depends" {
+    value   = "${var.depends}:lambda/role/${aws_iam_role.LambdaRole.arn}"
 }
 

@@ -131,3 +131,15 @@ output "id" {
     value = "${aws_sqs_queue.queue.arn}"
 }
 
+
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+output "depends" {
+    value   = "${var.depends}:sqs/${aws_sqs_queue.queue.arn}"
+}
+

@@ -117,22 +117,10 @@ output "bucket_regional_domain_name" {
 
 
 ############################################################                                                                                # hack for lack of depends_on                                                                                                                
-variable "dependsOn" {
+variable "depends" {
     default = ""
 }
 
-resource "null_resource" "dependsOn" {
-
-    # triggers = {
-    #     value = "${aws_s3_bucket.website.}"
-    # }
-
-    depends_on = [
-        "aws_s3_bucket.website"
-    ]
-
-}
-
-output "dependencyId" {
-    value   = "${var.dependsOn}:${null_resource.dependsOn.id}"
+output "depends" {
+    value   = "${var.depends}:s3/website/${aws_s3_bucket.website.arn}"
 }

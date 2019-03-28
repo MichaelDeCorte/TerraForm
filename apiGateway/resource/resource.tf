@@ -44,3 +44,13 @@ output "subPath" {
     value = "${aws_api_gateway_resource.apiResource.path}"
 }
 
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+output "depends" {
+    value   = "${var.depends}:apigateway/resource/${aws_api_gateway_resource.apiResource.id}"
+}

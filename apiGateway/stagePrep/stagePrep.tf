@@ -28,3 +28,14 @@ variable "api_id" {
 output "stage_name" {
     value = "${var.stage_name}"
 }
+
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+output "depends" {
+    value   = "${var.depends}"
+}

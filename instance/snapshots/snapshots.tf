@@ -201,3 +201,25 @@ resource "aws_dlm_lifecycle_policy" "dlm_policy" {
     }
 }
 
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+resource "null_resource" "depends" {
+
+    # triggers = {
+    #     value = "${aws_s3_bucket.website.}"
+    # }
+
+    depends_on = [
+        "aws_dlm_lifecycle_policy.dlm_policy"
+    ]
+}
+
+output "depends" {
+    value   = "${var.depends}:instance/snapshots/${null_resource.depends.id}"
+}
+

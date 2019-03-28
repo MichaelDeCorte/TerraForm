@@ -124,7 +124,7 @@ resource "aws_cloudfront_distribution" "cloudfront" {
 }
 
 
-
+##############################
 output "id" {
     value = "${aws_cloudfront_distribution.cloudfront.id}"
 }
@@ -141,3 +141,13 @@ output "domain_name" {
     value = "${aws_cloudfront_distribution.cloudfront.domain_name}"
 }
 
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+output "depends" {
+    value   = "${var.depends}:cloudfront/${aws_cloudfront_distribution.cloudfront.arn}"
+}

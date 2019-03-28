@@ -125,3 +125,25 @@ resource "aws_codebuild_project" "lambda_nodejs" {
 								var.globals["tags"])}"
 
 }
+
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+resource "null_resource" "depends" {
+    depends_on = [
+        "aws_iam_role.CodeBuildRole",
+        "aws_aim_policy.CodeBuildPolicy",
+        "aws_iam_policy_attachment.CodeBuildPolicyAttachment",
+        "aws_iam_policy_attachment.CodeDeployPolicyAttachment",
+        "aws_codebuild_project.lambda_nodejs"
+    ]
+}
+
+output "depends" {
+    value   = "${var.depends}:codebuild/${null_resource.depends.id}"
+}
+

@@ -33,9 +33,7 @@ resource "aws_iam_policy" "policy" {
     policy = "${var.policy}"
 
     description	= "${var.description}"
-
 }
-
 
 resource "aws_iam_policy_attachment" "policy_attachment" {
     count		= "${length(var.role) > 0 ? 1 : 0}"
@@ -63,3 +61,16 @@ output "path" {
 output "name" {
     value = "${aws_iam_policy.policy.name}"
 }
+
+############################################################
+# hack for lack of depends_on
+
+variable "depends" {
+    default = ""
+}
+
+output "depends" {
+    value   = "${var.depends}:iam/policy:${aws_iam_policy.policy.arn}"
+}
+
+

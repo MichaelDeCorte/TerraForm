@@ -65,3 +65,16 @@ output "unique_id" {
 output "name" {
     value = "${aws_iam_role.role.name}"
 }
+
+############################################################
+# hack for lack of depends_on                                                                                                                
+
+variable "depends" {
+    default = ""
+}
+
+output "depends" {
+    value   = "${var.depends}:iam/role:${aws_iam_role.role.arn}"
+}
+
+

@@ -74,7 +74,7 @@ output "output" {
 
 ############################################################
 # hack for lack of depends_on
-variable "dependsOn" {
+variable "depends" {
     default = ""
 }
 
@@ -87,7 +87,7 @@ resource "null_resource" "dependsOutput" {
     }
 }
 
-output "dependencyId" {
-    value 	= "${var.dependsOn}:${join(":", null_resource.dependsOutput.*.id)}}"
+output "depends" {
+    value 	= "${var.depends}:files/${join(":", null_resource.dependsOutput.*.id)}}"
 }
 

@@ -88,3 +88,26 @@ resource "aws_route" "accepter_to_requester" {
 output "peer_id" {
     value     	= "${aws_vpc_peering_connection.peer.id}"
 }
+
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+resource "null_resource" "depends" {
+    depends_on = [
+        "aws_vpc_peering_connection.peer",
+        "aws_vpc_peering_connection_accepter.peer_accepter",
+        "aws_route_requester_to_accepter",
+        "aws_route.accepter_to_requester"
+    ]
+}
+
+output "depends" {
+    value   = "${var.depends}:vpc/peer/${null_resource.depends.id}"
+}
+
+
+

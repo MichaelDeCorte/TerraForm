@@ -55,17 +55,17 @@ resource "aws_lambda_permission" "allowApiGatewayQualified" {
 
 ##############################
 
-variable "dependsOn" {
+variable "depends" {
     default = ""
 }
 
-resource "null_resource" "dependsOn" {
+resource "null_resource" "depends" {
     depends_on = [
         "aws_lambda_permission.allowApiGateway",
         "aws_lambda_permission.allowApiGatewayQualified"
     ]
 }
 
-output "dependencyId" {
-    value = "apiGateway/lambdaPrep/${null_resource.dependsOn.id}"
+output "depends" {
+    value = "${var.depends}:apiGateway/lambdaPrep/${null_resource.depends.id}"
 }

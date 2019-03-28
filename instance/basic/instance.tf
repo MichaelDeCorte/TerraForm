@@ -143,3 +143,14 @@ output "availability_zone" {
 output "subnet_id" {
     value = "${aws_instance.instance.subnet_id}"
 }
+
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+output "depends" {
+    value   = "${var.depends}:instance/basic/${aws_instance.instance.id}"
+}

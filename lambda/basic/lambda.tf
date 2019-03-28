@@ -147,11 +147,11 @@ output "function_name" {
 
 ############################################################
 # hack for lack of depends_on
-variable "dependsOn" {
+variable "depends" {
     default = ""
 }
 
-resource "null_resource" "dependsOn" {
+resource "null_resource" "depends" {
     depends_on = [
         "module.LambdaRole",
         "aws_s3_bucket_object.lambdaFile",
@@ -160,6 +160,6 @@ resource "null_resource" "dependsOn" {
     ]
 }
 
-output "dependsOn" {
-    value = "${null_resource.dependsOn.id}"
+output "depends" {
+    value = "${var.depends}:lambda/basic/${null_resource.depends.id}"
 }

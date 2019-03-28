@@ -141,4 +141,22 @@ output "cidr_block" {
 }
 
 
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+resource "null_resource" "depends" {
+    depends_on = [
+        "aws_route.private_route_a_nat",
+        "aws_route_table_association.route_asociation"
+    ]
+}
+
+output "depends" {
+    value   = "${var.depends}:vpc/subnet/${null_resource.depends.id}"
+}
+
 

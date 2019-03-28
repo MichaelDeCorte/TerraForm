@@ -72,3 +72,23 @@ output "root_resource_id" {
 output "authorizer_id" {
     value = "${aws_api_gateway_authorizer.authorizer.id}"
 }
+
+
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+resource "null_resource" "depends" {
+    depends_on = [
+        "aws_api_gateway_rest_api.gatewayApi",
+        "module.apiGatewayRole",
+        "aws_api_gateway_authorizer.authorizer"
+    ]
+}
+
+output "depends" {
+    value   = "${var.depends}:apigateway/api/${null_resource.depends.id}"
+}

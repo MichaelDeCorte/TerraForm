@@ -218,3 +218,32 @@ output "availability_zone" {
 output "subnet_id" {
     value = "${module.bastion_host.subnet_id}"
 }
+
+output "name" {
+    value = "${aws_route53_record.bastion_dns.name}"
+}
+
+output "fqdn" {
+    value = "${aws_route53_record.bastion_dns.fqdn}"
+}
+
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+resource "null_resource" "depends" {
+
+    depends_on = [
+        "module.bastion_host",
+        "aws_route53_record.bastion_dns"
+    ]
+}
+
+output "depends" {
+    value   = "${var.depends}:bastion/${null_resource.depends.id}"
+}
+
+

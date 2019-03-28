@@ -337,3 +337,32 @@ output "name" {
 output "stream_label" {
     value = "${aws_dynamodb_table.dynamo_table.stream_label}"
 }
+
+
+############################################################                                                                                 
+# hack for lack of depends_on                                                                                         \                      
+
+variable "depends" {
+    default = ""
+}
+
+resource "null_resource" "depends" {
+    depends_on = [
+        "aws_dynamodb_table.dynamo_table",
+        "aws_appautoscaling_target.read_target",
+        "aws_appautoscaling_policy.read_target",
+        "aws_appautoscaling_target.write_target",
+        "aws_appautoscaling_policy.write_target",
+        "aws_appautoscaling_target.read_target_index",
+        "aws_appautoscaling_policy.read_target_index",
+        "aws_appautoscaling_target.write_target_index",
+        "aws_appautoscaling_policy.write_target_index",
+        "aws_lambda_event_source_mapping.triggers"
+    ]
+}
+
+output "depends" {
+    value   = "${var.depends}:dynamo/${null_resource.depends.id}"
+}
+
+

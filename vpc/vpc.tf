@@ -185,3 +185,29 @@ output "security_group_ids" {
 output "nat_gateway_id" {
     value = "${aws_nat_gateway.gw.id}"
 }
+
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+resource "null_resource" "depends" {
+
+    depends_on = [
+        "aws_vpc.main",
+        "aws_internet_gateway.gw",
+        "aws_subnet.public_a",
+        "aws_default_route_table.public_route",
+        "aws_route.public_route_igw",
+        "aws_route_table_association.public_a",
+        "aws_default_network_acl.public",
+        "aws_net_gateway.gw"
+    ]
+}
+
+output "depends" {
+    value   = "${var.depends}:vpc/${null_resource.depends.id}"
+}
+

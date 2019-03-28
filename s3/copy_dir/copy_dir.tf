@@ -64,21 +64,16 @@ output "hashfile" {
 }
 
 ############################################################                                                                                # hack for lack of depends_on                                                                                                                
-variable "dependsOn" {
+variable "depends" {
     default = ""
 }
 
-resource "null_resource" "dependsOn" {
-
-    # triggers = {
-    #     value = "${sha1(file(local.hashfile))}"
-    # }
-
+resource "null_resource" "depends" {
     depends_on = [
         "null_resource.copy_dir"
     ]
 }
 
-output "dependencyId" {
-    value   = "${var.dependsOn}:${null_resource.dependsOn.id}"
+output "depends" {
+    value   = "${var.depends}:s3/copy_dir/${null_resource.depends.id}"
 }

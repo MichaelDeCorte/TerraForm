@@ -90,3 +90,21 @@ resource "aws_lambda_function" "aws_lambda" {
         }
     }
 }
+
+
+############################################################
+# hack for lack of depends_on
+variable "depends" {
+    default = ""
+}
+
+resource "null_resource" "depends" {
+    depends_on = [
+        "module.LambdaRole",
+        "aws_lambda_function.aws_lambda"
+    ]
+}
+
+output "depends" {
+    value = "${var.depends}:lambda/basic-zip/${null_resource.depends.id}"
+}

@@ -29,3 +29,15 @@ resource "aws_cloudwatch_log_group" "log_group" {
 output "arn" {
        value = "${aws_cloudwatch_log_group.log_group.arn}"
 }
+
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+output "depends" {
+    value   = "${var.depends}:cloudwatch/logGroup/${aws_cloudwatch_log_group.log_group.arn}"
+}
+

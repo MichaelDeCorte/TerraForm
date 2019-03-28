@@ -69,8 +69,6 @@ module "cloudtrail_loggroup" {
     name = "${var.name}"
 }    
 
-
-
 module "cloudtrail_cloudwatch_role" {
     # source = "../iam/role"
     source = "git@github.com:MichaelDeCorte/Terraform.git//iam/role"
@@ -151,17 +149,10 @@ output "home_region" {
 
 ############################################################
 # hack for lack of depends_on
-variable "dependsOn" {
+variable "depends" {
     default = ""
 }
 
-resource "null_resource" "dependsOn" {
-    depends_on = [
-        "aws_cloudtrail.trail"
-    ]
-}
-
-output "dependencyId" {
-    # value = "${module.partyResource.subPath}"
-    value 	= "${var.dependsOn}:cloudtrail/trail/${null_resource.dependsOn.id}"
+output "depends" {
+    value 	= "${var.depends}:cloudtrail/trail/${aws_cloudtrail.trail.arn}"
 }

@@ -39,3 +39,20 @@ output "arn" {
 output "roleName" {
        value = "${aws_iam_role.awsApiRole.name}"
 }
+############################################################
+# hack for lack of depends_on                                                                                         \
+
+variable "depends" {
+    default = ""
+}
+
+resource "null_resource" "depends" {
+    depends_on = [
+        "module.apiGatewayRole",
+        "aws_api_gateway_authorizer.authorizer"
+    ]
+}
+
+output "depends" {
+    value   = "${var.depends}:apigateway/role/${aws_iam_role.awsApiRole.arn}"
+}

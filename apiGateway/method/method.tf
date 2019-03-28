@@ -109,38 +109,12 @@ output "function_uri" {
 
 ############################################################
 # hack for lack of depends_on
-variable "dependsOn" {
+variable "depends" {
     default = ""
 }
 
-resource "null_resource" "apiMethodRequest" {
-    depends_on = [
-        "aws_api_gateway_method.apiMethodRequest"
-    ]
-}
-
-resource "null_resource" "methodIntegrationRequest" {
-    depends_on = [
-        "aws_api_gateway_integration.methodIntegrationRequest"
-    ]
-}
-
-resource "null_resource" "200MethodResponse" {
-    depends_on = [
-        "aws_api_gateway_method_response.200MethodResponse"
-    ]
-}
-
-resource "null_resource" "500MethodResponse" {
-    depends_on = [
-        "aws_api_gateway_method_response.500MethodResponse"
-    ]
-}
-
-output "dependencyId" {
-    
-    value 	= "${var.dependsOn}:${aws_api_gateway_integration.methodIntegrationRequest.rest_api_id}"
-
+output "depends" {
+    value 	= "${var.depends}:apigateway/method/${aws_api_gateway_integration.methodIntegrationRequest.rest_api_id}"
 }
 
 
