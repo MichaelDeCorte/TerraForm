@@ -13,6 +13,14 @@ variable "domain_name" {
     type = "string"
 }
 
+variable "s3_id" {
+    type = "string"
+}
+
+variable "s3_arn" {
+    type = "string"
+}
+
 variable "origin_id" {
     type = "string"
 }
@@ -50,11 +58,38 @@ variable "default_root_object" {
 }
 
 
+variable "allowed_methods" {
+    # allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
+    default  = ["HEAD", "GET", "OPTIONS"]
+}
+
+variable "cached_methods" {
+    # allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
+    default  = ["HEAD", "GET", "OPTIONS"]
+}
+
+variable "geo_restrictions" {
+    default = {
+            restriction_type = "none"
+            # locations        = ["US", "CA", "GB", "DE"]
+        }
+
+}
+
+locals {
+    region            	= "${var.globals["region"]}"
+    env					= "${local.region["env"]}"
+}
+
 ##############################
 resource "aws_cloudfront_distribution" "cloudfront" {
     origin {
         domain_name = "${var.domain_name}"
         origin_id = "${var.origin_id}"
+
+        s3_origin_config {
+            origin_access_identity = "${aws_cloudfront_origin_access_identity.origin_access_identity.cloudfront_access_identity_path}"
+        }    
     }
 
     enabled             = true
@@ -71,11 +106,9 @@ resource "aws_cloudfront_distribution" "cloudfront" {
     aliases =  "${var.aliases}" 
 
     default_cache_behavior {
-        # allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
-        allowed_methods  = ["HEAD", "GET", "OPTIONS"]
+        allowed_methods  	= "${var.allowed_methods}"
 
-        # cached_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
-        cached_methods  = ["HEAD", "GET", "OPTIONS"]
+        cached_methods  	= "${var.cached_methods}"
 
         target_origin_id = "${var.origin_id}"
 
@@ -103,10 +136,7 @@ resource "aws_cloudfront_distribution" "cloudfront" {
     price_class = "PriceClass_100" # PriceClass_100 = U.S. Canada & Europe
 
     restrictions {
-        geo_restriction {
-            restriction_type = "none"
-            # locations        = ["US", "CA", "GB", "DE"]
-        }
+        geo_restriction = [ "${var.geo_restrictions}" ]
     }
 
     tags 					= "${merge(var.tags, 
@@ -123,6 +153,38 @@ resource "aws_cloudfront_distribution" "cloudfront" {
     price_class = "${var.price_class}"
 }
 
+resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
+    comment = "OAI for ${local.env}"
+}
+
+resource "aws_s3_bucket_policy" "policy" {
+    bucket = "${var.s3_id}"
+
+    policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Id": "s3_oai_policy_${local.env}",
+  "Statement": [ 
+	{
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "${var.s3_arn}/*",
+      "Principal": {
+        "AWS": "${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "${var.s3_arn}",
+      "Principal": {
+        "AWS": "${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"
+      }
+    }
+  ]
+}
+POLICY
+}
 
 ##############################
 output "id" {
