@@ -56,7 +56,6 @@ resource "aws_s3_bucket" "S3Bucket" {
         }
     }
 
-
     tags 					= "${merge(var.tags, 
 								map("Service", "s3.bucket"),
 								var.globals["tags"])}"
