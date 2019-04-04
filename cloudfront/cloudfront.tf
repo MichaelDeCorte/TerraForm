@@ -9,17 +9,78 @@ variable "tags" {
     default = { }
 }
 
-variable "domain_name" {
+
+##############################
+# s3
+variable "bucket" {
     type = "string"
 }
 
-variable "s3_id" {
+variable "acl" {
+    default = "public-read"
+}
+
+variable "force_destroy" {
+    default = false
+}
+
+variable "index_document" {
     type = "string"
 }
 
-variable "s3_arn" {
-    type = "string"
+variable "allowed_headers" {
+    default = ["*"]
 }
+
+variable "allowed_methods" {
+    default = [
+        "HEAD",
+        "DELETE",
+        "POST",
+        "GET",
+        "HEAD",
+        "PUT",
+    ]
+}
+
+variable "allowed_origins" {
+    default = []
+}
+
+variable "max_age_seconds" {
+    default = 3000
+}
+
+##############################
+# S3
+resource "aws_s3_bucket" "website" {
+    bucket          = "${var.bucket}"
+    acl             = "${var.acl}"
+    force_destroy   = "${var.force_destroy}"
+    acl				= "${var.acl}"
+
+
+    # https://github.com/hashicorp/terraform/issues/16582
+    cors_rule = {
+        allowed_headers = [ "${var.allowed_headers}" ]
+        allowed_methods = [ "${var.allowed_methods}" ]
+        allowed_origins = [ "${var.allowed_origins}" ]
+        max_age_seconds = "${var.max_age_seconds}"
+    }    
+
+    tags 					= "${merge(var.tags, 
+								map("Service", "s3.bucket"),
+								var.globals["tags"])}"
+
+    website {
+        index_document = "${var.index_document}"
+        error_document = "${var.index_document}"
+    }
+}
+
+
+##############################
+# cloudfront
 
 variable "origin_id" {
     type = "string"
@@ -58,7 +119,7 @@ variable "default_root_object" {
 }
 
 
-variable "allowed_methods" {
+variable "cloudfront_allowed_methods" {
     # allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
     default  = ["HEAD", "GET", "OPTIONS"]
 }
@@ -84,7 +145,7 @@ locals {
 ##############################
 resource "aws_cloudfront_distribution" "cloudfront" {
     origin {
-        domain_name = "${var.domain_name}"
+        domain_name = "${aws_s3_bucket.website.bucket_regional_domain_name}"
         origin_id = "${var.origin_id}"
 
         s3_origin_config {
@@ -106,7 +167,7 @@ resource "aws_cloudfront_distribution" "cloudfront" {
     aliases =  "${var.aliases}" 
 
     default_cache_behavior {
-        allowed_methods  	= "${var.allowed_methods}"
+        allowed_methods  	= "${var.cloudfront_allowed_methods}"
 
         cached_methods  	= "${var.cached_methods}"
 
@@ -158,7 +219,7 @@ resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
 }
 
 resource "aws_s3_bucket_policy" "policy" {
-    bucket = "${var.s3_id}"
+    bucket = "${aws_s3_bucket.website.id}"
 
     policy = <<POLICY
 {
@@ -168,7 +229,7 @@ resource "aws_s3_bucket_policy" "policy" {
 	{
       "Effect": "Allow",
       "Action": "s3:GetObject",
-      "Resource": "${var.s3_arn}/*",
+      "Resource": "${aws_s3_bucket.website.arn}/*",
       "Principal": {
         "AWS": "${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"
       }
@@ -176,7 +237,7 @@ resource "aws_s3_bucket_policy" "policy" {
     {
       "Effect": "Allow",
       "Action": "s3:ListBucket",
-      "Resource": "${var.s3_arn}",
+      "Resource": "${aws_s3_bucket.website.arn}",
       "Principal": {
         "AWS": "${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"
       }
@@ -186,12 +247,34 @@ resource "aws_s3_bucket_policy" "policy" {
 POLICY
 }
 
+
 ##############################
-output "id" {
+output "s3_id" {
+    value = "${aws_s3_bucket.website.id}"
+}
+
+output "s3_arn" {
+    value = "${aws_s3_bucket.website.arn}"
+}
+
+output "website_endpoint" {
+    value = "${aws_s3_bucket.website.website_endpoint}"
+}
+
+output "website_domain" {
+    value = "${aws_s3_bucket.website.website_domain}"
+}
+
+output "bucket_regional_domain_name" {
+    value = "${aws_s3_bucket.website.bucket_regional_domain_name}"
+}
+
+##############################
+output "cloudfront_id" {
     value = "${aws_cloudfront_distribution.cloudfront.id}"
 }
 
-output "arn" {
+output "cloudfront_arn" {
     value = "${aws_cloudfront_distribution.cloudfront.arn}"
 }
 
