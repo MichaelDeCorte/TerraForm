@@ -68,6 +68,16 @@ resource "aws_s3_bucket" "website" {
         max_age_seconds = "${var.max_age_seconds}"
     }    
 
+    server_side_encryption_configuration {
+        rule {
+            apply_server_side_encryption_by_default {
+                sse_algorithm     = "AES256"
+                # sse_algorithm     = "aws:kms"
+                # kms_master_key_id = "${aws_kms_key.mykey.arn}"
+            }
+        }
+    }
+
     tags 					= "${merge(var.tags, 
 								map("Service", "s3.bucket"),
 								var.globals["tags"])}"
