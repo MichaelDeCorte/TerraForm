@@ -17,7 +17,7 @@ variable "bucket" {
 }
 
 variable "acl" {
-    default = "public-read"
+    default = "private"
 }
 
 variable "force_destroy" {
