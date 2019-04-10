@@ -51,9 +51,11 @@ module "api_stage_log_group" {
 }    
 
 
+
 ##############################
 resource "aws_api_gateway_deployment" "apiDeployment" {
     rest_api_id = "${var.api_id}"
+    stage_name = "${var.stage_name}"
     variables = {
         # hack to address dependency of aws_api_gateway_deployment on aws_api_gateway_integration and aws_api_gateway_method
         # but there's no TF module dependency support
@@ -64,6 +66,10 @@ resource "aws_api_gateway_deployment" "apiDeployment" {
 
 ##############################
 resource "aws_api_gateway_stage" "apiStage" {
+    depends_on = [
+        "aws_api_gateway_deployment.apiDeployment"
+    ]
+    
     rest_api_id 	= "${var.api_id}"
     stage_name 		= "${var.stage_name}"
     deployment_id 	= "${aws_api_gateway_deployment.apiDeployment.id}"
@@ -76,6 +82,7 @@ resource "aws_api_gateway_stage" "apiStage" {
                                 map("Service", "apigateway:stage"),                                                                   
                                 var.globals["tags"])}"
 }
+
 
 # enable logging for this api
 resource "aws_api_gateway_method_settings" "apiSettings" {

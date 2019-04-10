@@ -64,7 +64,7 @@ resource "aws_s3_bucket" "website" {
     cors_rule = {
         allowed_headers = [ "${var.allowed_headers}" ]
         allowed_methods = [ "${var.allowed_methods}" ]
-        allowed_origins = [ "${var.allowed_origins}" ]
+        allowed_origins = [ "${var.allowed_origins}" ] # mrd
         max_age_seconds = "${var.max_age_seconds}"
     }    
 
@@ -136,7 +136,8 @@ variable "cloudfront_allowed_methods" {
 
 variable "cached_methods" {
     # allowed_methods  = ["HEAD", "DELETE", "POST", "GET", "OPTIONS", "PUT", "PATCH"]
-    default  = ["HEAD", "GET", "OPTIONS"]
+    # default  = ["HEAD", "GET", "OPTIONS"]
+    default  = ["HEAD", "GET"]
 }
 
 variable "geo_restrictions" {
@@ -188,6 +189,12 @@ resource "aws_cloudfront_distribution" "cloudfront" {
             cookies {
                 forward = "none"
             }
+            headers = [
+                "Access-Control-Request-Headers",
+                "Access-Control-Request-Method",
+                "Authorization",
+                "Origin" 
+            ]
         }
 
         viewer_protocol_policy = "redirect-to-https"
@@ -231,7 +238,7 @@ resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
 resource "aws_s3_bucket_policy" "policy" {
     bucket = "${aws_s3_bucket.website.id}"
 
-    policy = <<POLICY
+     policy = <<POLICY
 {
   "Version": "2012-10-17",
   "Id": "s3_oai_policy_${local.env}",
