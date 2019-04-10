@@ -42,7 +42,7 @@ variable "logging_level" {
 #
 # must be created before AWS creates LogGroup via aws_api_gateway_method_settings
 #
-module "apiStageLogGroup" {
+module "api_stage_log_group" {
     # source = "../../cloudwatch/logGroup"
     source = "git@github.com:MichaelDeCorte/Terraform.git//cloudwatch/logGroup"
 
@@ -68,6 +68,10 @@ resource "aws_api_gateway_stage" "apiStage" {
     stage_name 		= "${var.stage_name}"
     deployment_id 	= "${aws_api_gateway_deployment.apiDeployment.id}"
     description 	= "Stage / ${var.stage_name}"
+    access_log_settings {
+        destination_arn 	= "${module.api_stage_log_group.arn}"
+        format				= "$context.error.message,$context.error.messageString,$context.identity.sourceIp,$context.identity.caller,$context.identity.user,$context.requestTime,$context.httpMethod,$context.resourcePath,$context.protocol,$context.status,$context.responseLength,$context.requestId"
+    }
     tags                    = "${merge(var.tags,                                                                               
                                 map("Service", "apigateway:stage"),                                                                   
                                 var.globals["tags"])}"
@@ -76,18 +80,18 @@ resource "aws_api_gateway_stage" "apiStage" {
 # enable logging for this api
 resource "aws_api_gateway_method_settings" "apiSettings" {
     depends_on = [
-        "module.apiStageLogGroup",
+        "module.api_stage_log_group",
         "aws_api_gateway_deployment.apiDeployment"
     ]
 
-    rest_api_id = "${var.api_id}"
-    stage_name  = "${aws_api_gateway_stage.apiStage.stage_name}"
-    method_path = "*/*" # log all methods
+    rest_api_id 				= "${var.api_id}"
+    stage_name  				= "${aws_api_gateway_stage.apiStage.stage_name}"
+    method_path 				= "*/*" # log all methods
     
     settings {
-        metrics_enabled = true
-        logging_level   = "${var.logging_level}"
-        data_trace_enabled = true
+        metrics_enabled 		= true
+        logging_level   		= "${var.logging_level}"
+        data_trace_enabled 		= true
     }
 }
 
