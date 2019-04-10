@@ -56,10 +56,40 @@ resource "aws_s3_bucket" "S3Bucket" {
         }
     }
 
+    policy = <<POLICY
+{
+  "Version": "2008-10-17",
+  "Statement": [
+	{
+      "Effect": "Allow",
+      "Principal": {
+		"AWS": "${data.aws_caller_identity.current.arn}"
+	  },
+      "Action": [
+            "s3:*"
+	  ],
+      "Resource": "arn:aws:s3:::${var.bucket}/*"
+    },
+	{
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": [
+            "s3:GetObject",
+            "s3:GetObjectTagging",
+            "s3:GetObjectVersion"
+	  ],
+      "Resource": "arn:aws:s3:::${var.bucket}/*"
+    }
+  ]
+}
+POLICY
+
     tags 					= "${merge(var.tags, 
 								map("Service", "s3.bucket"),
 								var.globals["tags"])}"
 }
+
+data "aws_caller_identity" "current" {}
 
 output "id" {
        value = "${aws_s3_bucket.S3Bucket.id}"
