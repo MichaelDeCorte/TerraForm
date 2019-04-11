@@ -86,6 +86,26 @@ resource "aws_s3_bucket" "website" {
 # }
 # POLICY
 
+    # aws config / s3-bucket-ssl-requests-only
+    policy = <<POLICY
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "*",
+      "Resource": "arn:aws:s3:::${var.bucket}/*",
+      "Condition": {
+        "Bool": {
+          "aws:SecureTransport": "false"
+        }
+      }
+    }
+  ]
+}
+POLICY
+
     # https://github.com/hashicorp/terraform/issues/16582
     cors_rule = {
         allowed_headers = [ "${var.allowed_headers}" ]
