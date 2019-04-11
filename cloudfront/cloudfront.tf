@@ -60,6 +60,32 @@ resource "aws_s3_bucket" "website" {
     acl				= "${var.acl}"
 
 
+#     policy = <<POLICY
+# {
+#   "Version": "2008-10-17",
+#   "Statement": [
+# 	{
+#       "Effect": "Allow",
+#       "Principal": {
+# 		"AWS": "${data.aws_caller_identity.current.arn}"
+# 	  },
+#       "Action": [
+#             "s3:*"
+# 	  ],
+#       "Resource": "arn:aws:s3:::${var.bucket}/*"
+#     },
+# 	{
+#       "Effect": "Allow",
+#       "Principal": "*",
+#       "Action": [
+#             "s3:GetObject"
+# 	  ],
+#       "Resource": "arn:aws:s3:::${var.bucket}/*"
+#     }
+#   ]
+# }
+# POLICY
+
     # https://github.com/hashicorp/terraform/issues/16582
     cors_rule = {
         allowed_headers = [ "${var.allowed_headers}" ]
@@ -88,6 +114,8 @@ resource "aws_s3_bucket" "website" {
     }
 }
 
+
+data "aws_caller_identity" "current" {}
 
 ##############################
 # cloudfront

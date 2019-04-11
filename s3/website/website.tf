@@ -56,20 +56,31 @@ resource "aws_s3_bucket" "website" {
     force_destroy   = "${var.force_destroy}"
     acl				= "${var.acl}"
 
-    policy          = <<EOF
-{
-    "Version": "2012-10-17",
-    "Statement": [
-        {
-            "Sid": "PublicReadForGetBucketObjects",
-            "Effect": "Allow",
-            "Principal": "*",
-            "Action": "s3:GetObject",
-            "Resource": "arn:aws:s3:::${var.bucket}/*"
-        }
-    ]
-}
-EOF
+#     policy = <<POLICY
+# {
+#   "Version": "2008-10-17",
+#   "Statement": [
+# 	{
+#       "Effect": "Allow",
+#       "Principal": {
+# 		"AWS": "${data.aws_caller_identity.current.arn}"
+# 	  },
+#       "Action": [
+#             "s3:*"
+# 	  ],
+#       "Resource": "arn:aws:s3:::${var.bucket}/*"
+#     },
+# 	{
+#       "Effect": "Allow",
+#       "Principal": "*",
+#       "Action": [
+#             "s3:GetObject"
+# 	  ],
+#       "Resource": "arn:aws:s3:::${var.bucket}/*"
+#     }
+#   ]
+# }
+# POLICY
 
     # https://github.com/hashicorp/terraform/issues/16582
     cors_rule = {
@@ -89,6 +100,8 @@ EOF
     }
 }
 
+
+data "aws_caller_identity" "current" {}
 
 ##############################
 output "id" {
