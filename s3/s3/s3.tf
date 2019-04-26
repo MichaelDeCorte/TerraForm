@@ -41,32 +41,6 @@ variable "policy" {
     default = "default"
 }
 
-variable "cors_rule" {
-    default = []
-}
-    
-variable "website" {
-    default = []
-}
-    
-variable "server_side_encryption_configuration" {
-    default = [
-        {
-            rule = [
-                {
-                    apply_server_side_encryption_by_default = [
-                        {
-                            sse_algorithm     = "AES256"
-                            # sse_algorithm     = "aws:kms"
-                            # kms_master_key_id = "${aws_kms_key.mykey.arn}"
-                        }
-                    ]
-                }
-            ]
-        }
-    ]
-}
-
 locals {
     logging_values = "${list(
 							  list(),
@@ -83,7 +57,6 @@ locals {
 
     # hack https://github.com/hashicorp/terraform/issues/12453
     logging = "${local.logging_values[var.logging_bucket == "" ? 0 : 1]}"
-
 
     # aws config / s3-bucket-ssl-requests-only    
     policy = <<POLICY
@@ -116,27 +89,18 @@ resource "aws_s3_bucket" "S3Bucket" {
 
 	# https://github.com/hashicorp/terraform/issues/3116
     lifecycle {
-	#        prevent_destroy = "${var.prevent_destroy}"
         prevent_destroy = true
     }
     
-    server_side_encryption_configuration = "${var.server_side_encryption_configuration}"
-
-    # server_side_encryption_configuration {
-    #     rule {
-    #         apply_server_side_encryption_by_default {
-    #             sse_algorithm     = "AES256"
-    #             # sse_algorithm     = "aws:kms"
-    #             # kms_master_key_id = "${aws_kms_key.mykey.arn}"
-    #         }
-    #     }
-    # }
-
-    logging = "${local.logging}"
-
-    cors_rule = "${var.cors_rule}"
-
-    website = "${var.website}"
+    server_side_encryption_configuration {
+        rule {
+            apply_server_side_encryption_by_default {
+                sse_algorithm     = "AES256"
+                # sse_algorithm     = "aws:kms"
+                # kms_master_key_id = "${aws_kms_key.mykey.arn}"
+            }
+        }
+    }
 
     tags 					= "${merge(var.tags, 
 								map("Service", "s3.bucket"),
