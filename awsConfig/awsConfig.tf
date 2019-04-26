@@ -18,8 +18,8 @@ variable "logging_bucket" {
 
 ##############################
 module "config_bucket" {
-    source        = "../s3/s3"                                                                                             
-    # source      = "git@github.com:MichaelDeCorte/TerraForm.git//s3/s3"
+    # source        = "../s3/s3"                                                                                             
+    source      = "git@github.com:MichaelDeCorte/TerraForm.git//s3/s3"
 
     globals     = "${var.globals}"
 
