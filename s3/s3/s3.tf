@@ -41,6 +41,32 @@ variable "policy" {
     default = "default"
 }
 
+variable "cors_rule" {
+    default = []
+}
+    
+variable "website" {
+    default = []
+}
+    
+variable "server_side_encryption_configuration" {
+    default = [
+        {
+            rule = [
+                {
+                    apply_server_side_encryption_by_default = [
+                        {
+                            sse_algorithm     = "AES256"
+                            # sse_algorithm     = "aws:kms"
+                            # kms_master_key_id = "${aws_kms_key.mykey.arn}"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
+
 locals {
     logging_values = "${list(
 							  list(),
@@ -94,17 +120,23 @@ resource "aws_s3_bucket" "S3Bucket" {
         prevent_destroy = true
     }
     
-    server_side_encryption_configuration {
-        rule {
-            apply_server_side_encryption_by_default {
-                sse_algorithm     = "AES256"
-                # sse_algorithm     = "aws:kms"
-                # kms_master_key_id = "${aws_kms_key.mykey.arn}"
-            }
-        }
-    }
+    server_side_encryption_configuration = "${var.server_side_encryption_configuration}"
+
+    # server_side_encryption_configuration {
+    #     rule {
+    #         apply_server_side_encryption_by_default {
+    #             sse_algorithm     = "AES256"
+    #             # sse_algorithm     = "aws:kms"
+    #             # kms_master_key_id = "${aws_kms_key.mykey.arn}"
+    #         }
+    #     }
+    # }
 
     logging = "${local.logging}"
+
+    cors_rule = "${var.cors_rule}"
+
+    website = "${var.website}"
 
     tags 					= "${merge(var.tags, 
 								map("Service", "s3.bucket"),
@@ -176,7 +208,10 @@ output "name" {
        value = "${var.bucket}"
 }
 
-    
+output "bucket_regional_domain_name" {
+    value = "${aws_s3_bucket.S3Bucket.bucket_regional_domain_name}"
+}
+
 ############################################################
 # hack for lack of depends_on
 variable "depends" {
