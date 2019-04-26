@@ -8,18 +8,13 @@ variable "tags" {
     default = { }
 }
 
-variable "name" {
-    type = "string"
-}
-
 variable "bucket_name" {
     type = "string"
 }
 
-resource "aws_s3_bucket_policy" "cloudtrail_policy" {
-  bucket = "${var.bucket_name}"
+output "policy" {
 
-  policy = <<POLICY
+  value = <<POLICY
 {
     "Version": "2012-10-17",
     "Statement": [
@@ -53,6 +48,7 @@ resource "aws_s3_bucket_policy" "cloudtrail_policy" {
 POLICY
 }
 
+
 ############################################################
 # hack for lack of depends_on
 variable "depends" {
@@ -61,10 +57,9 @@ variable "depends" {
 
 resource "null_resource" "depends" {
     depends_on = [
-        "aws_s3_bucket_policy.cloudtrail_policy"
     ]
 }
 
 output "depends" {
-    value 	= "${var.depends}:cloudtrail/policy/${null_resource.depends.id}"
+    value 	= "${var.depends}"
 }

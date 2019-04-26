@@ -11,6 +11,11 @@ variable "bucket" {
 	 type = "string"
 }
 
+variable "logging_bucket" {
+    type = "string"
+    default = ""
+}
+
 variable "acl" {
     default = "private"
 }
@@ -30,6 +35,49 @@ variable "versioning" {
 
 variable "prevent_destroy" {
     default = false
+}
+
+variable "policy" {
+    default = "default"
+}
+
+locals {
+    logging_values = "${list(
+							  list(),
+                              list(
+                                   map(
+                                       "target_bucket", "${var.logging_bucket}",
+                                       "target_prefix", "${var.bucket}"
+                                   )
+                                  )
+							 )
+						}"
+
+
+
+    # hack https://github.com/hashicorp/terraform/issues/12453
+    logging = "${local.logging_values[var.logging_bucket == "" ? 0 : 1]}"
+
+
+    # aws config / s3-bucket-ssl-requests-only    
+    policy = <<POLICY
+{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "*",
+      "Resource": "arn:aws:s3:::${var.bucket}/*",
+      "Condition": {
+        "Bool": {
+          "aws:SecureTransport": "false"
+        }
+      }
+    }
+  ]
+}
+POLICY
 }
 
 resource "aws_s3_bucket" "S3Bucket" {
@@ -55,6 +103,35 @@ resource "aws_s3_bucket" "S3Bucket" {
             }
         }
     }
+
+    logging = "${local.logging}"
+
+    tags 					= "${merge(var.tags, 
+								map("Service", "s3.bucket"),
+								var.globals["tags"])}"
+}
+
+output "logging" {
+    value = "${local.logging}"
+}
+
+output "logging_default" {
+    value = "${local.logging_values}"
+}
+
+
+resource "aws_s3_bucket_policy" "s3_policy" {
+    count = "${var.policy == ""? 0 : 1}"
+
+    depends_on = [
+        "aws_s3_bucket.S3Bucket"
+    ]
+
+    bucket          = "${var.bucket}"
+
+    policy = "${var.policy == "default" ? local.policy: var.policy}"
+
+}
 
 #     policy = <<POLICY
 # {
@@ -83,32 +160,7 @@ resource "aws_s3_bucket" "S3Bucket" {
 #   ]
 # }
 # POLICY
-
-# aws config / s3-bucket-ssl-requests-only
-
-    policy = <<POLICY
-{
-  "Version": "2008-10-17",
-  "Statement": [
-    {
-      "Effect": "Deny",
-      "Principal": "*",
-      "Action": "*",
-      "Resource": "arn:aws:s3:::${var.bucket}/*",
-      "Condition": {
-        "Bool": {
-          "aws:SecureTransport": "false"
-        }
-      }
-    }
-  ]
-}
-POLICY
-
-    tags 					= "${merge(var.tags, 
-								map("Service", "s3.bucket"),
-								var.globals["tags"])}"
-}
+    
 
 data "aws_caller_identity" "current" {}
 
