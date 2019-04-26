@@ -212,6 +212,14 @@ output "bucket_regional_domain_name" {
     value = "${aws_s3_bucket.S3Bucket.bucket_regional_domain_name}"
 }
 
+output "website_domain" {
+    value = "${aws_s3_bucket.S3Bucket.website_domain}"
+}
+
+output "website_endpoint" {
+    value = "${aws_s3_bucket.S3Bucket.website_endpoint}"
+}
+
 ############################################################
 # hack for lack of depends_on
 variable "depends" {
