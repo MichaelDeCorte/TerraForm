@@ -34,6 +34,17 @@ module "config_bucket" {
   "Version": "2012-10-17",
   "Statement": [
     {
+      "Effect": "Deny",
+      "Principal": "*",
+      "Action": "*",
+      "Resource": "${module.config_bucket.arn}/*",
+      "Condition": {
+        "Bool": {
+          "aws:SecureTransport": "false"
+        }
+      }
+    },
+    {
       "Sid": "AWSConfigBucketPermissionsCheck",
       "Effect": "Allow",
       "Principal": {

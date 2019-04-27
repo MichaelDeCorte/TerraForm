@@ -19,6 +19,17 @@ output "policy" {
     "Version": "2012-10-17",
     "Statement": [
         {
+          "Effect": "Deny",
+          "Principal": "*",
+          "Action": "*",
+          "Resource": "arn:aws:s3:::${var.bucket_name}",
+          "Condition": {
+            "Bool": {
+              "aws:SecureTransport": "false"
+            }
+          }
+        },
+        {
             "Sid": "AWSCloudTrailPolicyACL",
             "Effect": "Allow",
             "Principal": {
