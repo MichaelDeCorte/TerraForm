@@ -22,7 +22,7 @@ output "policy" {
           "Effect": "Deny",
           "Principal": "*",
           "Action": "*",
-          "Resource": "arn:aws:s3:::${var.bucket_name}",
+          "Resource": "arn:aws:s3:::${var.bucket_name}/*",
           "Condition": {
             "Bool": {
               "aws:SecureTransport": "false"
