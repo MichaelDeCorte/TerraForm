@@ -26,6 +26,8 @@ module "config_bucket" {
     bucket      = "${var.name}"
     tags        = "${map("Module", "common")}"
     acl         = "private"
+    versioning 	= true
+    force_destroy = true
     logging_bucket	= "${var.logging_bucket}"
     policy = <<POLICY
 {
