@@ -30,6 +30,7 @@ module "s3_logging_bucket" {
     bucket 		= "${local.bucket}"
     tags		= "${map("Module", "common")}"
     acl    		= "log-delivery-write"
+    force_destroy = true
 }
 
 
