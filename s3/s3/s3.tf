@@ -53,8 +53,6 @@ locals {
 							 )
 						}"
 
-
-
     # hack https://github.com/hashicorp/terraform/issues/12453
     logging = "${local.logging_values[var.logging_bucket == "" ? 0 : 1]}"
 
@@ -102,6 +100,8 @@ resource "aws_s3_bucket" "S3Bucket" {
         }
     }
 
+    logging = "${local.logging}"
+
     tags 					= "${merge(var.tags, 
 								map("Service", "s3.bucket"),
 								var.globals["tags"])}"
@@ -111,7 +111,7 @@ output "logging" {
     value = "${local.logging}"
 }
 
-output "logging_default" {
+output "logging_values" {
     value = "${local.logging_values}"
 }
 
