@@ -10,6 +10,28 @@ variable "tags" {
 }
 
 
+locals {
+    region            	= "${var.globals["region"]}"
+    env					= "${local.region["env"]}"
+    # can't get this to work even though it works in s3.tf.
+    # always says logging "should be a list"....
+    # logging_values = "${list(
+	# 						  list(),
+    #                           list(
+    #                                map(
+    #                                    "target_bucket", "${var.logging_bucket}",
+    #                                    "target_prefix", "${var.bucket}"
+    #                                )
+    #                               )
+	# 						 )
+	# 					}"
+
+
+
+    # # hack https://github.com/hashicorp/terraform/issues/12453
+    # logging = "${local.logging_values[var.logging_bucket == "" ? 0 : 1]}"
+}
+
 ##############################
 # s3
 variable "bucket" {
@@ -51,42 +73,67 @@ variable "max_age_seconds" {
     default = 3000
 }
 
+variable "logging_bucket" {
+    type = "string"
+    default = ""
+}
+
+
 ##############################
 # S3
 resource "aws_s3_bucket" "website" {
     bucket          = "${var.bucket}"
     acl             = "${var.acl}"
     force_destroy   = "${var.force_destroy}"
-    acl				= "${var.acl}"
+    versioning {
+        enabled = "true"
+    }
+
+    lifecycle {
+        prevent_destroy = true
+    }
+
+    server_side_encryption_configuration {
+        rule {
+            apply_server_side_encryption_by_default {
+                sse_algorithm     = "AES256"
+            }
+        }
+    }
+
+    logging {
+        target_bucket = "${var.logging_bucket}"
+        target_prefix = "${var.bucket}"
+    }
+
+    # https://github.com/hashicorp/terraform/issues/16582
+    cors_rule {
+        allowed_headers = [ "${var.allowed_headers}" ]
+        allowed_methods = [ "${var.allowed_methods}" ]
+        allowed_origins = [ "${var.allowed_origins}" ] # mrd
+        max_age_seconds = "${var.max_age_seconds}"
+    }    
+
+    website {
+        index_document = "${var.index_document}"
+        error_document = "${var.index_document}"
+    }
 
 
-#     policy = <<POLICY
-# {
-#   "Version": "2008-10-17",
-#   "Statement": [
-# 	{
-#       "Effect": "Allow",
-#       "Principal": {
-# 		"AWS": "${data.aws_caller_identity.current.arn}"
-# 	  },
-#       "Action": [
-#             "s3:*"
-# 	  ],
-#       "Resource": "arn:aws:s3:::${var.bucket}/*"
-#     },
-# 	{
-#       "Effect": "Allow",
-#       "Principal": "*",
-#       "Action": [
-#             "s3:GetObject"
-# 	  ],
-#       "Resource": "arn:aws:s3:::${var.bucket}/*"
-#     }
-#   ]
-# }
-# POLICY
+    tags 					= "${merge(var.tags, 
+								map("Service", "s3.bucket"),
+								var.globals["tags"])}"
 
-    # aws config / s3-bucket-ssl-requests-only
+}
+
+resource "aws_s3_bucket_policy" "website" {
+
+    depends_on = [
+        "aws_s3_bucket.website"
+    ]
+
+    bucket          = "${var.bucket}"
+
     policy = <<POLICY
 {
   "Version": "2008-10-17",
@@ -101,37 +148,26 @@ resource "aws_s3_bucket" "website" {
           "aws:SecureTransport": "false"
         }
       }
+    },
+	{
+      "Effect": "Allow",
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::${var.bucket}/*",
+      "Principal": {
+        "AWS": "${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"
+      }
+    },
+    {
+      "Effect": "Allow",
+      "Action": "s3:ListBucket",
+      "Resource": "arn:aws:s3:::${var.bucket}",
+      "Principal": {
+        "AWS": "${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"
+      }
     }
   ]
 }
 POLICY
-
-    # https://github.com/hashicorp/terraform/issues/16582
-    cors_rule = {
-        allowed_headers = [ "${var.allowed_headers}" ]
-        allowed_methods = [ "${var.allowed_methods}" ]
-        allowed_origins = [ "${var.allowed_origins}" ] # mrd
-        max_age_seconds = "${var.max_age_seconds}"
-    }    
-
-    server_side_encryption_configuration {
-        rule {
-            apply_server_side_encryption_by_default {
-                sse_algorithm     = "AES256"
-                # sse_algorithm     = "aws:kms"
-                # kms_master_key_id = "${aws_kms_key.mykey.arn}"
-            }
-        }
-    }
-
-    tags 					= "${merge(var.tags, 
-								map("Service", "s3.bucket"),
-								var.globals["tags"])}"
-
-    website {
-        index_document = "${var.index_document}"
-        error_document = "${var.index_document}"
-    }
 }
 
 
@@ -196,11 +232,6 @@ variable "geo_restrictions" {
 
 }
 
-locals {
-    region            	= "${var.globals["region"]}"
-    env					= "${local.region["env"]}"
-}
-
 ##############################
 resource "aws_cloudfront_distribution" "cloudfront" {
     origin {
@@ -213,15 +244,7 @@ resource "aws_cloudfront_distribution" "cloudfront" {
     }
 
     enabled             = true
-    # is_ipv6_enabled     = true
-    # comment             = "Some comment"
     default_root_object = "${var.default_root_object}"
-
-    # logging_config {
-    #     include_cookies = false
-    #     bucket          = "mylogs.s3.amazonaws.com"
-    #     prefix          = "myprefix"
-    # }
 
     aliases =  "${var.aliases}" 
 
@@ -282,36 +305,6 @@ resource "aws_cloudfront_distribution" "cloudfront" {
 resource "aws_cloudfront_origin_access_identity" "origin_access_identity" {
     comment = "OAI for ${local.env}"
 }
-
-resource "aws_s3_bucket_policy" "policy" {
-    bucket = "${aws_s3_bucket.website.id}"
-
-     policy = <<POLICY
-{
-  "Version": "2012-10-17",
-  "Id": "s3_oai_policy_${local.env}",
-  "Statement": [ 
-	{
-      "Effect": "Allow",
-      "Action": "s3:GetObject",
-      "Resource": "${aws_s3_bucket.website.arn}/*",
-      "Principal": {
-        "AWS": "${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"
-      }
-    },
-    {
-      "Effect": "Allow",
-      "Action": "s3:ListBucket",
-      "Resource": "${aws_s3_bucket.website.arn}",
-      "Principal": {
-        "AWS": "${aws_cloudfront_origin_access_identity.origin_access_identity.iam_arn}"
-      }
-    }
-  ]
-}
-POLICY
-}
-
 
 ##############################
 output "s3_id" {
