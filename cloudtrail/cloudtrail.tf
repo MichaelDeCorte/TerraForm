@@ -71,11 +71,12 @@ module "cloudtrail_loggroup" {
 
 module "cloudtrail_cloudwatch_role" {
     # source = "../iam/role"
-    source = "git@github.com:MichaelDeCorte/Terraform.git//iam/role"
+    source 		= "git@github.com:MichaelDeCorte/Terraform.git//iam/role"
 
-    globals = "${var.globals}"
+    globals 	= "${var.globals}"
 
-    name = "${local.role_name}"
+    name 		= "${local.role_name}"
+    create 		= "true"
 
     assume_role_policy = <<POLICY
 {
