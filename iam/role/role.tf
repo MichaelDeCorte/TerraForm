@@ -14,7 +14,7 @@ variable "name" {
 
 variable "assume_role_policy" {
     type = "string"
-    default = "true"
+    default = "false"
 }
 
 variable "force_detach_policies" {
