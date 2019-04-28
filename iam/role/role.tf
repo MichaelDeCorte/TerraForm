@@ -14,6 +14,7 @@ variable "name" {
 
 variable "assume_role_policy" {
     type = "string"
+    default = ""
 }
 
 variable "force_detach_policies" {
@@ -29,9 +30,16 @@ variable "max_session_duration" {
 }
 
 
+variable "create" {
+    type = "string"
+#    default = "false"
+}
+
 ############################################################
 
 resource "aws_iam_role" "role" {
+    count = "${var.create == "true" ? 1 : 0}"
+
     name = "${var.name}"
 
     assume_role_policy = "${var.assume_role_policy}"
@@ -49,21 +57,42 @@ resource "aws_iam_role" "role" {
 }
 
 
+data "aws_iam_role" "role" {
+    count = "${var.create == "true" ? 0 : 1}"
+    name = "vpc-flow-log-role"
+}
+
 ############################################################
 output "arn" {
-    value = "${aws_iam_role.role.arn}"
+    # https://github.com/hashicorp/terraform/issues/16726
+    value = "${var.create == "true" ? 
+			element(concat(aws_iam_role.role.*.arn, list("")), 0) : 
+			element(concat(data.aws_iam_role.role.*.arn, list("")), 0) 
+			}"
 }
 
 output "id" {
-    value = "${aws_iam_role.role.id}"
+    # https://github.com/hashicorp/terraform/issues/16726
+    value = "${var.create == "true" ? 
+			element(concat(aws_iam_role.role.*.id, list("")), 0) : 
+			element(concat(data.aws_iam_role.role.*.id, list("")), 0) 
+			}"
 }
 
 output "unique_id" {
-    value = "${aws_iam_role.role.unique_id}"
+    # https://github.com/hashicorp/terraform/issues/16726
+    value = "${var.create == "true" ? 
+			element(concat(aws_iam_role.role.*.unique_id, list("")), 0) : 
+			element(concat(data.aws_iam_role.role.*.unique_id, list("")), 0) 
+			}"
 }
 
 output "name" {
-    value = "${aws_iam_role.role.name}"
+    # https://github.com/hashicorp/terraform/issues/16726
+    value = "${var.create == "true" ? 
+			element(concat(aws_iam_role.role.*.name, list("")), 0) : 
+			element(concat(data.aws_iam_role.role.*.name, list("")), 0) 
+			}"
 }
 
 ############################################################
@@ -74,7 +103,7 @@ variable "depends" {
 }
 
 output "depends" {
-    value   = "${var.depends}:iam/role:${aws_iam_role.role.arn}"
+    value   = "${var.depends}:iam/role:${join(",", aws_iam_role.role.*.arn)}"
 }
 
 
