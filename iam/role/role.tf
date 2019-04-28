@@ -14,7 +14,6 @@ variable "name" {
 
 variable "assume_role_policy" {
     type = "string"
-    default = "false"
 }
 
 variable "force_detach_policies" {
@@ -32,7 +31,7 @@ variable "max_session_duration" {
 
 variable "create" {
     type = "string"
-#    default = "false"
+    default = "false"
 }
 
 ############################################################
