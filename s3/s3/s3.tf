@@ -41,6 +41,11 @@ variable "policy" {
     default = "default"
 }
 
+variable "create" {
+    type = "string"
+#    default = "false"
+}
+
 locals {
     logging_values = "${list(
 							  list(),
@@ -77,7 +82,11 @@ locals {
 POLICY
 }
 
+##############################
+
 resource "aws_s3_bucket" "S3Bucket" {
+    count = "${var.create == "true" ? 1 : 0}"
+
     bucket          = "${var.bucket}"
     acl             = "${var.acl}"
     force_destroy   = "${var.force_destroy}"
@@ -107,6 +116,13 @@ resource "aws_s3_bucket" "S3Bucket" {
 								var.globals["tags"])}"
 }
 
+data "aws_s3_bucket" "S3Bucket" {
+    count = "${var.create == "true" ? 0 : 1}"
+
+    bucket          = "${var.bucket}"
+}
+
+##############################
 output "logging" {
     value = "${local.logging}"
 }
@@ -117,7 +133,7 @@ output "logging_values" {
 
 
 resource "aws_s3_bucket_policy" "s3_policy" {
-    count = "${var.policy == ""? 0 : 1}"
+    count = "${var.policy != "" && var.create == "true" ? 1 : 0}"
 
     depends_on = [
         "aws_s3_bucket.S3Bucket"
@@ -126,7 +142,6 @@ resource "aws_s3_bucket_policy" "s3_policy" {
     bucket          = "${var.bucket}"
 
     policy = "${var.policy == "default" ? local.policy: var.policy}"
-
 }
 
 #     policy = <<POLICY
@@ -161,11 +176,18 @@ resource "aws_s3_bucket_policy" "s3_policy" {
 data "aws_caller_identity" "current" {}
 
 output "id" {
-       value = "${aws_s3_bucket.S3Bucket.id}"
+    # https://github.com/hashicorp/terraform/issues/16726
+    value = "${var.create == "true" ? 
+			element(concat(aws_s3_bucket.S3Bucket.*.id, list("")), 0) : 
+			element(concat(data.aws_s3_bucket.S3Bucket.*.id, list("")), 0) 
+			}"
 }
 
 output "arn" {
-       value = "${aws_s3_bucket.S3Bucket.arn}"
+    value = "${var.create == "true" ? 
+			element(concat(aws_s3_bucket.S3Bucket.*.arn, list("")), 0) : 
+			element(concat(data.aws_s3_bucket.S3Bucket.*.arn, list("")), 0) 
+			}"
 }
 
 output "name" {
@@ -179,5 +201,5 @@ variable "depends" {
 }
 
 output "depends" {
-    value 	= "${var.depends}:s3/s3/${aws_s3_bucket.S3Bucket.arn}"
+    value   = "${var.depends}:iam/role:${join(",", aws_s3_bucket.S3Bucket.*.arn)}"
 }

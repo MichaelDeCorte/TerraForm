@@ -22,7 +22,7 @@ module "vpc_flow_log_role" {
 
     name 			= "vpc-flow-log-role"
 
-    create 			= "true"
+    create 			= "${var.create}"
     assume_role_policy = <<EOF
 {
   "Version": "2012-10-17",

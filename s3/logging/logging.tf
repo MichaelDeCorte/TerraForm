@@ -12,22 +12,27 @@ variable "bucket" {
     type = "string"
 }
 
+variable "create" {
+    type = "string"
+#    default = "false"
+}
+
 ##############################
 
 locals {
     region = "${var.globals["region"]}"
-    # bucket = "${var.bucket}"
-    bucket = "${var.bucket}-${local.region["region"]}"
 }
 
 ##############################
 module "s3_logging_bucket" {
-    # source 		= "../../../Terraform/s3/s3"
-    source 		= "git@github.com:MichaelDeCorte/TerraForm.git//s3/s3"
+    source 		= "../../../Terraform/s3/s3"
+    # source 		= "git@github.com:MichaelDeCorte/TerraForm.git//s3/s3"
 
     globals 	= "${var.globals}"
 
-    bucket 		= "${local.bucket}"
+    create		= "${var.create}"
+
+    bucket 		= "${var.bucket}-${local.region["region"]}"
     tags		= "${map("Module", "common")}"
     acl    		= "log-delivery-write"
     force_destroy = true
