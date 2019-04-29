@@ -23,6 +23,7 @@ module "config_bucket" {
 
     globals     = "${var.globals}"
 
+    create		= "true"
     bucket      = "${var.name}"
     tags        = "${map("Module", "common")}"
     acl         = "private"
