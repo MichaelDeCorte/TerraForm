@@ -33,16 +33,23 @@ variable "egress_network_acls" {
     default = []
 }
 
+variable "nat" {
+    default = "true"
+}
+
+variable "igw" {
+    default = "true"
+}
+
 ############################################################
 locals {
     region = "${var.globals["region"]}"    
 }
 
 #################### create the development VPC
-resource "aws_vpc" "main" {
+resource "aws_vpc" "vpc" {
     cidr_block		= "${var.vpc_cidr}"
 
-    
     enable_dns_hostnames = true
     
     tags			= "${merge(var.tags, 
@@ -53,7 +60,9 @@ resource "aws_vpc" "main" {
 
 #################### Internet gateway
 resource "aws_internet_gateway" "gw" {
-    vpc_id 			= "${aws_vpc.main.id}"
+    count = "${var.igw == true ? 1 : 0}"
+    
+    vpc_id 			= "${aws_vpc.vpc.id}"
 
     tags			= "${merge(var.tags, 
 						var.globals["tags"], 
@@ -65,8 +74,9 @@ resource "aws_internet_gateway" "gw" {
 #################### create subnets
 data "aws_availability_zones" "available" {}
 
+
 resource "aws_subnet" "public_a" {
-    vpc_id     		= "${aws_vpc.main.id}"
+    vpc_id     		= "${aws_vpc.vpc.id}"
     cidr_block 		= "${var.default_subnet_cidr}"
 
     tags			= "${merge(var.tags, 
@@ -80,7 +90,7 @@ resource "aws_subnet" "public_a" {
 
 #################### routing tables
 resource "aws_default_route_table" "public_route" {
-    default_route_table_id			= "${aws_vpc.main.main_route_table_id}"
+    default_route_table_id			= "${aws_vpc.vpc.main_route_table_id}"
 
     tags			= "${merge(var.tags, 
 						var.globals["tags"], 
@@ -89,13 +99,15 @@ resource "aws_default_route_table" "public_route" {
 }
 
 resource "aws_route" "public_route_igw" {
-    route_table_id            = "${aws_vpc.main.main_route_table_id}"
+    count = "${var.igw == true ? 1 : 0}"
+    
+    route_table_id            = "${aws_vpc.vpc.main_route_table_id}"
     destination_cidr_block    = "0.0.0.0/0"
     gateway_id	= "${aws_internet_gateway.gw.id}"
 }
 
 resource "aws_route_table_association" "public_a" {
-    route_table_id 	= "${aws_vpc.main.main_route_table_id}"
+    route_table_id 	= "${aws_vpc.vpc.main_route_table_id}"
     subnet_id      	= "${aws_subnet.public_a.id}"
 }
 
@@ -103,7 +115,7 @@ resource "aws_route_table_association" "public_a" {
 # https://docs.aws.amazon.com/vpc/latest/userguide/vpc-recommended-nacl-rules.html
 
 resource "aws_default_network_acl" "public" {
-    default_network_acl_id = "${aws_vpc.main.default_network_acl_id}"
+    default_network_acl_id = "${aws_vpc.vpc.default_network_acl_id}"
 
     subnet_ids		= [ "${aws_subnet.public_a.id}" ]
 
@@ -125,6 +137,8 @@ resource "aws_default_network_acl" "public" {
 ##############################
 # NAT Server
 resource "aws_eip" "nat" {
+    count = "${var.nat == true ? 1 : 0}"
+
     vpc			= true
     tags		= "${merge(var.tags, 
 						map("Service", "ec2.address"),
@@ -133,6 +147,8 @@ resource "aws_eip" "nat" {
 }
 
 resource "aws_nat_gateway" "gw" {
+    count = "${var.nat == true ? 1 : 0}"
+
     depends_on = [ "aws_internet_gateway.gw" ]
     allocation_id = "${aws_eip.nat.id}"
     subnet_id     = "${aws_subnet.public_a.id}"
@@ -143,13 +159,41 @@ resource "aws_nat_gateway" "gw" {
 						map("Name", "NAT Server / ${local.region["env"]}") )}"
 }
 
+
+###############################
+# flow logs
+module "vpc_flow_log_role" {
+    # source 		= "git@github.com:MichaelDeCorte/TerraForm.git//vpc/flow_log_role"
+    source 		= "./flow_log_role"
+
+    globals		= "${var.globals}"
+    tags		= "${var.tags}"
+}
+
+module "vpc_log_group" {
+    # source = "../cloudwatch/logGroup"
+    source = "git@github.com:MichaelDeCorte/Terraform.git//cloudwatch/logGroup"
+    globals = "${var.globals}"
+
+    name = "vpc/${var.name}"
+}    
+
+resource "aws_flow_log" "vpc_logs" {
+    iam_role_arn 			= "${module.vpc_flow_log_role.arn}"
+    traffic_type    		= "ALL"
+    log_destination_type 	= "cloud-watch-logs"
+    log_destination 		= "${module.vpc_log_group.arn}"
+    vpc_id          		= "${aws_vpc.vpc.id}"
+    
+}
+
 ##############################
 output "vpc_id" {
-    value     	= "${aws_vpc.main.id}"
+    value     	= "${aws_vpc.vpc.id}"
 }
 
 output "vpc_arn" {
-    value     	= "${aws_vpc.main.arn}"
+    value     	= "${aws_vpc.vpc.arn}"
 }
 
 output "vpc_cidr" {
@@ -173,17 +217,18 @@ output "network_acl_id" {
 }
 
 output "route_table_id" {
-    value 	= "${aws_vpc.main.main_route_table_id}"
+    value 	= "${aws_vpc.vpc.main_route_table_id}"
 }
 
 output "security_group_ids" {
     value 	= [
-        "${aws_vpc.main.default_security_group_id}"
+        "${aws_vpc.vpc.default_security_group_id}"
     ]
 }
 
 output "nat_gateway_id" {
-    value = "${aws_nat_gateway.gw.id}"
+    # https://github.com/hashicorp/terraform/issues/16726
+    value = "${var.nat == true ? element(concat(aws_nat_gateway.gw.*.id, list("")), 0) : ""}"
 }
 
 ############################################################
@@ -196,7 +241,7 @@ variable "depends" {
 resource "null_resource" "depends" {
 
     depends_on = [
-        "aws_vpc.main",
+        "aws_vpc.vpc",
         "aws_internet_gateway.gw",
         "aws_subnet.public_a",
         "aws_default_route_table.public_route",
