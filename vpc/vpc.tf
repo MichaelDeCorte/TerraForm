@@ -163,8 +163,8 @@ resource "aws_nat_gateway" "gw" {
 ###############################
 # flow logs
 module "vpc_flow_log_role" {
-    # source 		= "git@github.com:MichaelDeCorte/TerraForm.git//vpc/flow_log_role"
-    source 		= "./flow_log_role"
+    # source 		= "./flow_log_role"
+    source 		= "git@github.com:MichaelDeCorte/TerraForm.git//vpc/flow_log_role"
 
     globals		= "${var.globals}"
     tags		= "${var.tags}"

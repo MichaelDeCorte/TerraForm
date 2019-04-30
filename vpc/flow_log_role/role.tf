@@ -16,8 +16,8 @@ variable "create" {
 ##############################
 
 module "vpc_flow_log_role" {
-    source 			= "../../../Terraform/iam/role"
-    # source 		= "git@github.com:MichaelDeCorte/TerraForm.git//iam/role"
+    # source 			= "../../iam/role"
+    source 		= "git@github.com:MichaelDeCorte/TerraForm.git//iam/role"
     globals 		= "${var.globals}"
 
     name 			= "vpc-flow-log-role"
