@@ -45,8 +45,8 @@ data "aws_cloudwatch_log_group" "log_group" {
 output "arn" {
     # https://github.com/hashicorp/terraform/issues/16726
     value = "${var.create == "true" ? 
-			element(concat(aws_cloudwatch_log_group.log_group*.arn, list("")), 0) : 
-			element(concat(data.aws_cloudwatch_log_group.log_group*.arn, list("")), 0) 
+			element(concat(aws_cloudwatch_log_group.log_group.*.arn, list("")), 0) : 
+			element(concat(data.aws_cloudwatch_log_group.log_group.*.arn, list("")), 0) 
 			}"
 
 }
