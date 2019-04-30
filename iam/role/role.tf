@@ -28,10 +28,9 @@ variable "max_session_duration" {
     default = 3600 # 1 hour
 }
 
-
 variable "create" {
     type = "string"
-    default = "false"
+    default = "true"
 }
 
 ############################################################

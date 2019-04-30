@@ -43,7 +43,7 @@ variable "policy" {
 
 variable "create" {
     type = "string"
-#    default = "false"
+    default = "true"
 }
 
 locals {
@@ -201,5 +201,5 @@ variable "depends" {
 }
 
 output "depends" {
-    value   = "${var.depends}:iam/role:${join(",", aws_s3_bucket.S3Bucket.*.arn)}"
+    value   = "${var.depends}:s3:${join(",", aws_s3_bucket.S3Bucket.*.arn)}"
 }

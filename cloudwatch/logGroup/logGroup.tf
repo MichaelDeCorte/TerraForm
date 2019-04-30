@@ -16,7 +16,15 @@ variable "retention_in_days" {
     default=3
 }    
 
+variable "create" {
+    type = "string"
+    default = "true"
+}
+
+##############################
 resource "aws_cloudwatch_log_group" "log_group" {
+    count = "${var.create == "true" ? 1 : 0}"
+
     name              = "${var.name}"
     retention_in_days = "${var.retention_in_days}"
 
@@ -26,8 +34,21 @@ resource "aws_cloudwatch_log_group" "log_group" {
 
 }
 
+
+data "aws_cloudwatch_log_group" "log_group" {
+    count = "${var.create == "true" ? 0 : 1}"
+
+    name              = "${var.name}"
+}
+
+##############################
 output "arn" {
-       value = "${aws_cloudwatch_log_group.log_group.arn}"
+    # https://github.com/hashicorp/terraform/issues/16726
+    value = "${var.create == "true" ? 
+			element(concat(aws_cloudwatch_log_group.log_group*.arn, list("")), 0) : 
+			element(concat(data.aws_cloudwatch_log_group.log_group*.arn, list("")), 0) 
+			}"
+
 }
 
 ############################################################
@@ -38,6 +59,6 @@ variable "depends" {
 }
 
 output "depends" {
-    value   = "${var.depends}:cloudwatch/logGroup/${aws_cloudwatch_log_group.log_group.arn}"
+    value   = "${var.depends}:cloudwatch/logGroup/${join(",", aws_cloudwatch_log_group.log_group.*.arn)}"
 }
 
