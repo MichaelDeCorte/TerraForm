@@ -17,7 +17,7 @@ variable "hard_expiry" {
 }
 
 variable "max_password_age" {
-    default = "0"
+    default = "1000"
 }
 
 variable "minimum_password_length" {

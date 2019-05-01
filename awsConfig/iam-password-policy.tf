@@ -11,6 +11,6 @@ resource "aws_config_config_rule" "iam-password-policy" {
     source_identifier = "IAM_PASSWORD_POLICY"
   }
 
-  input_parameters = "{ \"MaxPasswordAge\": \"0\", \"MinimumPasswordLength\": \"14\", \"PasswordReusePrevention\": \"10\", \"RequireLowercaseCharacters\": \"true\", \"RequireNumbers\": \"true\",\"RequireSymbols\": \"true\", \"RequireUppercaseCharacters\": \"true\" }"
+  input_parameters = "{ \"MaxPasswordAge\": \"1000\", \"MinimumPasswordLength\": \"14\", \"PasswordReusePrevention\": \"10\", \"RequireLowercaseCharacters\": \"true\", \"RequireNumbers\": \"true\",\"RequireSymbols\": \"true\", \"RequireUppercaseCharacters\": \"true\" }"
 }
 
