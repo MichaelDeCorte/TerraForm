@@ -149,42 +149,13 @@ resource "aws_config_delivery_channel" "config" {
     s3_bucket_name = "${module.config_bucket.name}"
 }
 
-resource "aws_config_configuration_recorder_status" "foo" {
+resource "aws_config_configuration_recorder_status" "status" {
     depends_on = ["aws_config_delivery_channel.config"]
 
     name       = "${aws_config_configuration_recorder.config.name}"
     is_enabled = true
 }
 
-##############################
-# https://docs.aws.amazon.com/config/latest/developerguide/s3-bucket-policy-grantee-check.html
-resource "aws_config_config_rule" "s3-bucket-policy-grantee-check" {
-  depends_on = ["aws_config_configuration_recorder.config"]
-
-  name = "s3-bucket-policy-grantee-check"
-
-  source {
-    owner             = "AWS"
-    source_identifier = "S3_BUCKET_POLICY_GRANTEE_CHECK"
-  }
-
-  input_parameters = "{\"servicePrincipals\": \"config.amazonaws.com,cloudtrail.amazonaws.com\"}"
-}
-
-# ##############################
-# # https://docs.aws.amazon.com/config/latest/developerguide/s3-bucket-logging-enabled.html
-# resource "aws_config_config_rule" "s3-bucket-logging-enabled" {
-#   depends_on = ["aws_config_configuration_recorder.config"]
-
-#   name = "s3-bucket-logging-enabled" {
-
-#   source {
-#     owner             = "AWS"
-#     source_identifier = "S3_BUCKET_LOGGING_ENABLED"
-#   }
-
-#   input_parameters = "{}"
-# }
 
 ##############################
 

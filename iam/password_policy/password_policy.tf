@@ -21,7 +21,7 @@ variable "max_password_age" {
 }
 
 variable "minimum_password_length" {
-    default = "8"
+    default = "14"
 }
 
 variable "password_reuse_prevention" {
