@@ -28,6 +28,10 @@ variable "event_selector" {
     default = []
 }
 
+variable "enable_log_file_validation" {
+    default = "true"
+}
+
 ############################################################
 data "aws_caller_identity" "current" {}
 
@@ -58,6 +62,7 @@ resource "aws_cloudtrail" "trail" {
 
     cloud_watch_logs_role_arn  = "${module.cloudtrail_cloudwatch_role.arn}"
     cloud_watch_logs_group_arn = "${module.cloudtrail_loggroup.arn}"
+    enable_log_file_validation = "${var.enable_log_file_validation}"
 }
 
 module "cloudtrail_loggroup" {
