@@ -2,7 +2,7 @@
 # https://docs.aws.amazon.com/config/latest/developerguide/iam-password-policy.html
 
 variable "iam-password-policy" {
-    default = "{ \"MaxPasswordAge\": \"1000\", \"MinimumPasswordLength\": \"14\", \"PasswordReusePrevention\": \"10\", \"RequireLowercaseCharacters\": \"true\", \"RequireNumbers\": \"true\",\"RequireSymbols\": \"true\", \"RequireUppercaseCharacters\": \"true\" }"
+    default = "{ \"MaxPasswordAge\": \"0\", \"MinimumPasswordLength\": \"14\", \"PasswordReusePrevention\": \"30\", \"RequireLowercaseCharacters\": \"true\", \"RequireNumbers\": \"true\",\"RequireSymbols\": \"true\", \"RequireUppercaseCharacters\": \"true\" }"
 }
 
 resource "aws_config_config_rule" "iam-password-policy" {
