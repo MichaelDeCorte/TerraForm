@@ -17,6 +17,7 @@ variable "logging_bucket" {
 }
 
 ##############################
+# s3 bucket
 module "config_bucket" {
     # source        = "../s3/s3"                                                                                             
     source      = "git@github.com:MichaelDeCorte/TerraForm.git//s3/s3"
@@ -81,16 +82,9 @@ POLICY
 data "aws_caller_identity" "current" {
 }
 
-resource "aws_config_configuration_recorder" "config" {
-    name     = "aws-config"
-    role_arn = "${aws_iam_role.config.arn}"
-
-    recording_group {
-        "all_supported" = true
-    }
-}
-
-resource "aws_iam_role_policy_attachment" "a" {
+##############################
+# iam
+resource "aws_iam_role_policy_attachment" "policy_attachment" {
     role       = "${aws_iam_role.config.name}"
     policy_arn = "arn:aws:iam::aws:policy/service-role/AWSConfigRole"
 }
@@ -139,6 +133,19 @@ resource "aws_iam_role_policy" "config" {
 POLICY
 }
 
+##############################
+# aws config
+resource "aws_config_configuration_recorder" "config" {
+    name     = "aws-config"
+    role_arn = "${aws_iam_role.config.arn}"
+
+
+    recording_group {
+        all_supported = true
+        include_global_resource_types = true
+    }
+}
+
 resource "aws_config_delivery_channel" "config" {
     depends_on     = [
         "module.config_bucket",
@@ -155,7 +162,6 @@ resource "aws_config_configuration_recorder_status" "status" {
     name       = "${aws_config_configuration_recorder.config.name}"
     is_enabled = true
 }
-
 
 ##############################
 
