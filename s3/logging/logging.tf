@@ -14,7 +14,7 @@ variable "bucket" {
 
 variable "create" {
     type = "string"
-#    default = "false"
+    default = "true"
 }
 
 ##############################
