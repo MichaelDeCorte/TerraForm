@@ -25,8 +25,8 @@ locals {
 
 ##############################
 module "s3_logging_bucket" {
-    source 		= "../../../Terraform/s3/s3"
-    # source 		= "git@github.com:MichaelDeCorte/TerraForm.git//s3/s3"
+    # source 		= "../../../Terraform/s3/s3"
+    source 		= "git@github.com:MichaelDeCorte/TerraForm.git//s3/s3"
 
     globals 	= "${var.globals}"
 
